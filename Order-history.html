@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Riwayat Pesanan - Fresh Herbal</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header & Navigation -->
+    <header class="main-header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <h1><i class="fas fa-leaf"></i> Fresh Herbal</h1>
+                    <p class="tagline">Kesehatan Alami dari Alam</p>
+                </div>
+                
+                <button class="mobile-menu-btn" aria-label="Toggle menu">
+                    <i class="fas fa-bars"></i>
+                </button>
+                
+                <nav class="main-nav">
+                    <ul>
+                        <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
+                        <li><a href="about.html"><i class="fas fa-info-circle"></i> Tentang Kami</a></li>
+                        <li><a href="catalog.html"><i class="fas fa-store"></i> Katalog</a></li>
+                        <li><a href="cart.html"><i class="fas fa-shopping-cart"></i> Keranjang <span class="cart-count">0</span></a></li>
+                        <li><a href="dashboard.html"><i class="fas fa-user"></i> Dashboard</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Order History Header -->
+    <section class="page-header">
+        <div class="container">
+            <h1>Riwayat Pesanan</h1>
+            <p>Lihat semua pesanan yang pernah Anda buat</p>
+        </div>
+    </section>
+
+    <!-- Order History Filters -->
+    <section class="filters-section">
+        <div class="container">
+            <div class="filters">
+                <div class="filter-group">
+                    <label for="statusFilter"><i class="fas fa-filter"></i> Filter Status:</label>
+                    <select id="statusFilter">
+                        <option value="">Semua Status</option>
+                        <option value="pending">Menunggu</option>
+                        <option value="processing">Diproses</option>
+                        <option value="shipped">Dikirim</option>
+                        <option value="completed">Selesai</option>
+                        <option value="cancelled">Dibatalkan</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="dateFilter"><i class="fas fa-calendar"></i> Periode:</label>
+                    <select id="dateFilter">
+                        <option value="all">Semua Waktu</option>
+                        <option value="7days">7 Hari Terakhir</option>
+                        <option value="30days">30 Hari Terakhir</option>
+                        <option value="3months">3 Bulan Terakhir</option>
+                        <option value="2024">Tahun 2024</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <label for="searchOrder"><i class="fas fa-search"></i> Cari:</label>
+                    <input type="text" id="searchOrder" placeholder="Cari Order ID atau produk...">
+                </div>
+                
+                <button onclick="applyFilters()" class="btn btn-primary">
+                    <i class="fas fa-filter"></i> Terapkan Filter
+                </button>
+                
+                <button onclick="resetFilters()" class="btn btn-secondary">
+                    <i class="fas fa-redo"></i> Reset
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Order History Content -->
+    <section class="order-history-content">
+        <div class="container">
+            <div class="orders-container">
+                <div class="orders-header">
+                    <h3><i class="fas fa-receipt"></i> Daftar Pesanan</h3>
+                    <div class="orders-count">
+                        Menampilkan <span id="ordersCount">0</span> pesanan
+                    </div>
+                </div>
+                
+                <div class="orders-list" id="ordersList">
+                    <!-- Orders will be loaded here -->
+                </div>
+                
+                <div class="pagination" id="pagination">
+                    <!-- Pagination will be loaded here -->
+                </div>
+            </div>
+            
+            <!-- Order Statistics -->
+            <div class="order-statistics">
+                <div class="stat-card">
+                    <h4><i class="fas fa-chart-bar"></i> Statistik Pesanan</h4>
+                    <div class="stat-items">
+                        <div class="stat-item">
+                            <span class="stat-label">Total Pesanan:</span>
+                            <span class="stat-value" id="statTotal">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Total Pengeluaran:</span>
+                            <span class="stat-value" id="statSpent">Rp 0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Rata-rata per Pesanan:</span>
+                            <span class="stat-value" id="statAverage">Rp 0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Order Detail Modal -->
+    <div class="modal" id="orderDetailModal">
+        <div class="modal-content modal-lg">
+            <div class="modal-header">
+                <h3>Detail Pesanan: <span id="modalOrderId"></span></h3>
+                <button class="modal-close" onclick="closeModal('orderDetailModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="order-detail-grid">
+                    <div class="order-info-section">
+                        <h4><i class="fas fa-info-circle"></i> Informasi Pesanan</h4>
+                        <div class="detail-item">
+                            <span class="detail-label">Tanggal Pesanan:</span>
+                            <span class="detail-value" id="detailDate"></span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Status:</span>
+                            <span class="detail-value" id="detailStatus"></span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Total Pembayaran:</span>
+                            <span class="detail-value" id="detailTotal"></span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Metode Pembayaran:</span>
+                            <span class="detail-value" id="detailPayment"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="order-items-section">
+                        <h4><i class="fas fa-box"></i> Item Pesanan</h4>
+                        <div class="order-items-list" id="detailItems">
+                            <!-- Order items will be loaded here -->
+                        </div>
+                    </div>
+                    
+                    <div class="customer-info-section">
+                        <h4><i class="fas fa-user"></i> Informasi Pengiriman</h4>
+                        <div class="detail-item">
+                            <span class="detail-label">Nama:</span>
+                            <span class="detail-value" id="detailCustomerName"></span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Telepon:</span>
+                            <span class="detail-value" id="detailCustomerPhone"></span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Alamat:</span>
+                            <span class="detail-value" id="detailCustomerAddress"></span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="order-actions">
+                    <button onclick="printOrder()" class="btn btn-secondary">
+                        <i class="fas fa-print"></i> Cetak Invoice
+                    </button>
+                    <button onclick="trackOrder()" class="btn btn-primary">
+                        <i class="fas fa-truck"></i> Lacak Pengiriman
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="main-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3><i class="fas fa-leaf"></i> Fresh Herbal</h3>
+                    <p>Menyediakan produk herbal alami untuk kesehatan keluarga Indonesia sejak 2010.</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Kontak Kami</h3>
+                    <p><i class="fas fa-map-marker-alt"></i> Jl. Sehat No. 123, Jakarta</p>
+                    <p><i class="fas fa-phone"></i> (021) 1234-5678</p>
+                    <p><i class="fas fa-envelope"></i> info@freshherbal.com</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Jam Operasional</h3>
+                    <p>Senin - Jumat: 08:00 - 17:00</p>
+                    <p>Sabtu: 08:00 - 15:00</p>
+                    <p>Minggu: Tutup</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Fresh Herbal. Hak Cipta Dilindungi.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script src="js/order-history.js"></script>
+</body>
+</html>

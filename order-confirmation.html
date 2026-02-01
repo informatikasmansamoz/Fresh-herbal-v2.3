@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Konfirmasi Pesanan - Fresh Herbal</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Header & Navigation -->
+    <header class="main-header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <h1><i class="fas fa-leaf"></i> Fresh Herbal</h1>
+                    <p class="tagline">Kesehatan Alami dari Alam</p>
+                </div>
+                
+                <button class="mobile-menu-btn" aria-label="Toggle menu">
+                    <i class="fas fa-bars"></i>
+                </button>
+                
+                <nav class="main-nav">
+                    <ul>
+                        <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
+                        <li><a href="about.html"><i class="fas fa-info-circle"></i> Tentang Kami</a></li>
+                        <li><a href="catalog.html"><i class="fas fa-store"></i> Katalog</a></li>
+                        <li><a href="cart.html"><i class="fas fa-shopping-cart"></i> Keranjang <span class="cart-count">0</span></a></li>
+                        <li><a href="dashboard.html"><i class="fas fa-user"></i> Dashboard</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Confirmation Content -->
+    <section class="confirmation">
+        <div class="container">
+            <div class="confirmation-card">
+                <div class="confirmation-header">
+                    <div class="success-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <h1>Pesanan Berhasil!</h1>
+                    <p class="order-id">Order ID: <span id="confirmedOrderId"></span></p>
+                </div>
+                
+                <div class="confirmation-body">
+                    <div class="confirmation-message">
+                        <p>Terima kasih telah berbelanja di Fresh Herbal. Pesanan Anda telah berhasil diterima dan sedang diproses.</p>
+                        
+                        <div class="order-summary">
+                            <h3><i class="fas fa-receipt"></i> Ringkasan Pesanan</h3>
+                            <div id="confirmationSummary">
+                                <!-- Order summary will be loaded here -->
+                            </div>
+                        </div>
+                        
+                        <div class="next-steps">
+                            <h3><i class="fas fa-forward"></i> Langkah Selanjutnya</h3>
+                            <div class="steps">
+                                <div class="step">
+                                    <div class="step-number">1</div>
+                                    <div class="step-content">
+                                        <h4>Konfirmasi Pembayaran</h4>
+                                        <p>Lakukan pembayaran sesuai dengan metode yang dipilih. Upload bukti pembayaran jika diperlukan.</p>
+                                    </div>
+                                </div>
+                                <div class="step">
+                                    <div class="step-number">2</div>
+                                    <div class="step-content">
+                                        <h4>Pesanan Diproses</h4>
+                                        <p>Tim kami akan memproses pesanan Anda dalam 1-2 hari kerja.</p>
+                                    </div>
+                                </div>
+                                <div class="step">
+                                    <div class="step-number">3</div>
+                                    <div class="step-content">
+                                        <h4>Pesanan Dikirim</h4>
+                                        <p>Anda akan menerima nomor resi pengiriman via email/SMS.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="confirmation-actions">
+                        <a href="dashboard.html" class="btn btn-primary">
+                            <i class="fas fa-tachometer-alt"></i> Lihat Dashboard
+                        </a>
+                        <a href="order-history.html" class="btn btn-secondary">
+                            <i class="fas fa-history"></i> Lihat Riwayat Pesanan
+                        </a>
+                        <a href="catalog.html" class="btn btn-secondary">
+                            <i class="fas fa-shopping-cart"></i> Lanjut Belanja
+                        </a>
+                    </div>
+                    
+                    <div class="support-info">
+                        <h4><i class="fas fa-headset"></i> Butuh Bantuan?</h4>
+                        <p>Jika Anda memiliki pertanyaan mengenai pesanan, silakan hubungi customer service kami:</p>
+                        <p><strong>Telepon:</strong> (021) 1234-5678</p>
+                        <p><strong>Email:</strong> support@freshherbal.com</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="main-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3><i class="fas fa-leaf"></i> Fresh Herbal</h3>
+                    <p>Menyediakan produk herbal alami untuk kesehatan keluarga Indonesia sejak 2010.</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Kontak Kami</h3>
+                    <p><i class="fas fa-map-marker-alt"></i> Jl. Sehat No. 123, Jakarta</p>
+                    <p><i class="fas fa-phone"></i> (021) 1234-5678</p>
+                    <p><i class="fas fa-envelope"></i> info@freshherbal.com</p>
+                </div>
+                <div class="footer-section">
+                    <h3>Jam Operasional</h3>
+                    <p>Senin - Jumat: 08:00 - 17:00</p>
+                    <p>Sabtu: 08:00 - 15:00</p>
+                    <p>Minggu: Tutup</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Fresh Herbal. Hak Cipta Dilindungi.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script src="js/order-confirmation.js"></script>
+</body>
+</html>
