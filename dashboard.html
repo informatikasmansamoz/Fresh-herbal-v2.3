@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Fresh Herbal</title>
+    <title>Testimoni - Fresh Herbal</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/responsive.css">
     <link rel="stylesheet" href="css/dashboard.css">
@@ -16,10 +16,8 @@
         <div class="container">
             <div class="header-content">
                 <div class="logo">
-    <h1>
-        <img src="logo-main.png" alt="Logo Fresh Herbal" class="logo-img">
-        Fresh Herbal Nutritions
-    </h1>
+                    <h1><i class="fas fa-leaf"></i> Fresh Herbal</h1>
+                    <p class="tagline">Kesehatan Alami dari Alam</p>
                 </div>
                 
                 <button class="mobile-menu-btn" aria-label="Toggle menu">
@@ -30,204 +28,325 @@
                     <ul>
                         <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
                         <li><a href="about.html"><i class="fas fa-info-circle"></i> Tentang Kami</a></li>
-                        <li><a href="Catalog.html"><i class="fas fa-store"></i> Katalog</a></li>
+                        <li><a href="catalog.html"><i class="fas fa-store"></i> Katalog</a></li>
                         <li><a href="cart.html"><i class="fas fa-shopping-cart"></i> Keranjang <span class="cart-count">0</span></a></li>
-                        <li><a href="dashboard.html" class="active"><i class="fas fa-user"></i> Dashboard</a></li>
+                        <li><a href="dashboard.html" class="active"><i class="fas fa-comments"></i> Testimoni</a></li>
                     </ul>
                 </nav>
             </div>
         </div>
     </header>
 
-    <!-- Dashboard Header -->
-    <section class="dashboard-header">
+    <!-- Testimonial Header -->
+    <section class="testimonial-header">
         <div class="container">
-            <h1>Dashboard Pelanggan</h1>
-            <p class="user-welcome">Selamat datang, <span id="userName">Pelanggan</span>!</p>
+            <h1><i class="fas fa-star"></i> Testimoni Pelanggan</h1>
+            <p class="header-subtitle">Dengarkan pengalaman nyata dari pelanggan setia kami yang telah merasakan manfaat produk Fresh Herbal</p>
         </div>
     </section>
 
-    <!-- Dashboard Stats -->
-    <section class="dashboard-stats">
+    <!-- Video Testimonials Section -->
+    <section class="video-testimonials">
         <div class="container">
-            <div class="stat-card">
-                <div class="stat-icon">
-                    <i class="fas fa-shopping-bag"></i>
-                </div>
-                <div class="stat-value" id="totalOrders">0</div>
-                <div class="stat-label">Total Pesanan</div>
+            <div class="section-header">
+                <h2><i class="fas fa-video"></i> Testimoni Video</h2>
+                <p>Cerita sukses pelanggan kami dalam bentuk video</p>
             </div>
             
-            <div class="stat-card">
-                <div class="stat-icon">
-                    <i class="fas fa-check-circle"></i>
+            <div class="video-grid" id="videoGrid">
+                <!-- Video testimonials will be loaded here -->
+                <div class="video-card">
+                    <div class="video-container">
+                        <video width="100%" controls>
+                            <source src="bawang hitam.mp4" type="video/mp4">
+                            Browser Anda tidak mendukung video HTML5.
+                        </video>
+                    </div>
+                    <div class="video-info">
+                        <h3>Manfaat Black Garlic</h3>
+                        <p class="customer-name"><i class="fas fa-user-circle"></i> Ibu Siti</p>
+                        <p class="customer-review">Bawang hitam Fresh Herbal benar-benar mengubah kesehatan saya. Energi meningkat dan stamina lebih tahan lama!</p>
+                        <div class="rating">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                    </div>
                 </div>
-                <div class="stat-value" id="completedOrders">0</div>
-                <div class="stat-label">Pesanan Selesai</div>
-            </div>
-            
-            <div class="stat-card">
-                <div class="stat-icon">
-                    <i class="fas fa-clock"></i>
+
+                <div class="video-card">
+                    <div class="video-container">
+                        <video width="100%" controls>
+                            <source src="bawang hitam 500.mp4" type="video/mp4">
+                            Browser Anda tidak mendukung video HTML5.
+                        </video>
+                    </div>
+                    <div class="video-info">
+                        <h3>Bawang hitam 500</h3>
+                        <p class="customer-name"><i class="fas fa-user-circle"></i> Pak Ahmad</p>
+                        <p class="customer-review">Saya sangat percaya dengan kualitas produk ini. Sudah jadi langganan tetap selama 1 tahun!</p>
+                        <div class="rating">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                    </div>
                 </div>
-                <div class="stat-value" id="pendingOrders">0</div>
-                <div class="stat-label">Pesanan Diproses</div>
-            </div>
-            
-            <div class="stat-card">
-                <div class="stat-icon">
-                    <i class="fas fa-coins"></i>
+
+                <div class="video-card">
+                    <div class="video-container">
+                        <video width="100%" controls>
+                            <source src="madu .mp4" type="video/mp4">
+                            Browser Anda tidak mendukung video HTML5.
+                        </video>
+                    </div>
+                    <div class="video-info">
+                        <h3>Madu</h3>
+                        <p class="customer-name"><i class="fas fa-user-circle"></i> </p>
+                        <p class="customer-review">Seluruh keluarga kami konsumsi produk ini. Imunitas meningkat dan jarang sakit sekarang!</p>
+                        <div class="rating">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                    </div>
                 </div>
-                <div class="stat-value" id="totalSpent">Rp 0</div>
-                <div class="stat-label">Total Pengeluaran</div>
+                <div class="video-card">
+                    <div class="video-container">
+                        <video width="100%" controls>
+                            <source src="madu hitaam.mp4" type="video/mp4">
+                            Browser Anda tidak mendukung video HTML5.
+                        </video>
+                    </div>
+                    <div class="video-info">
+                        <h3>Madu Hitam</h3>
+                        <p class="customer-name"><i class="fas fa-user-circle"></i> </p>
+                        <p class="customer-review">Seluruh keluarga kami konsumsi produk ini. Imunitas meningkat dan jarang sakit sekarang!</p>
+                        <div class="rating">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="video-card">
+                    <div class="video-container">
+                        <video width="100%" controls>
+                            <source src="vdieo acar.mp4" type="video/mp4">
+                            Browser Anda tidak mendukung video HTML5.
+                        </video>
+                    </div>
+                    <div class="video-info">
+                        <h3>Acar</h3>
+                        <p class="customer-name"><i class="fas fa-user-circle"></i> Ibu Ratna</p>
+                        <p class="customer-review">Seluruh keluarga kami konsumsi produk ini. Imunitas meningkat dan jarang sakit sekarang!</p>
+                        <div class="rating">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
 
-    <!-- Dashboard Content -->
-    <section class="dashboard-content">
+    <!-- Photo Testimonials Section -->
+    <section class="photo-testimonials">
         <div class="container">
-            <div class="dashboard-sections">
-                <!-- Recent Orders -->
-                <div class="dashboard-section">
-                    <h3><i class="fas fa-history"></i> Pesanan Terbaru</h3>
-                    <ul class="recent-orders-list" id="recentOrders">
-                        <!-- Recent orders will be loaded here -->
-                    </ul>
-                    <a href="order-history.html" class="btn btn-secondary btn-block">Lihat Semua Pesanan</a>
-                </div>
-
-                <!-- User Information -->
-                <div class="dashboard-section">
-                    <h3><i class="fas fa-user-circle"></i> Informasi Akun</h3>
-                    <div class="user-info">
-                        <div class="user-info-item">
-                            <span class="info-label">Nama Lengkap:</span>
-                            <span class="info-value" id="userFullName">Pelanggan Fresh Herbal</span>
-                        </div>
-                        <div class="user-info-item">
-                            <span class="info-label">Email:</span>
-                            <span class="info-value" id="userEmail">customer@example.com</span>
-                        </div>
-                        <div class="user-info-item">
-                            <span class="info-label">Telepon:</span>
-                            <span class="info-value" id="userPhone">081234567890</span>
-                        </div>
-                        <div class="user-info-item">
-                            <span class="info-label">Alamat:</span>
-                            <span class="info-value" id="userAddress">Jl. Contoh No. 123, Jakarta</span>
-                        </div>
-                        <div class="user-info-item">
-                            <span class="info-label">Member Sejak:</span>
-                            <span class="info-value" id="memberSince">Januari 2024</span>
-                        </div>
-                    </div>
-                    <button onclick="editProfile()" class="btn btn-primary btn-block">
-                        <i class="fas fa-edit"></i> Edit Profil
-                    </button>
-                </div>
+            <div class="section-header">
+                <h2><i class="fas fa-images"></i> Galeri Foto Testimoni</h2>
+                <p>Momen kebahagiaan pelanggan bersama produk Fresh Herbal</p>
             </div>
 
-            <!-- Quick Actions -->
-            <div class="dashboard-actions">
-                <a href="catalog.html" class="action-card">
-                    <i class="fas fa-store"></i>
-                    <h4>Belanja Lagi</h4>
-                    <p>Temukan produk herbal terbaru</p>
-                </a>
-                
-                <a href="order-history.html" class="action-card">
-                    <i class="fas fa-receipt"></i>
-                    <h4>Riwayat Pesanan</h4>
-                    <p>Lihat semua pesanan Anda</p>
-                </a>
-                
-                <a href="#" class="action-card" onclick="showSupport()">
-                    <i class="fas fa-headset"></i>
-                    <h4>Bantuan</h4>
-                    <p>Butuh bantuan? Hubungi kami</p>
-                </a>
-                
-                <a href="#" class="action-card" onclick="showSettings()">
-                    <i class="fas fa-cog"></i>
-                    <h4>Pengaturan</h4>
-                    <p>Kelola preferensi akun Anda</p>
-                </a>
+            <div class="photo-grid" id="photoGrid">
+                <!-- Photo testimonials will be loaded here -->
+                <div class="photo-card">
+                    <div class="photo-wrapper">
+                        <img src="20260116_184035.png" alt="Testimoni pelanggan 1">
+                        <div class="photo-overlay">
+                            <div class="photo-text">
+                                <p class="product-used">Menggunakan: Black Garlic</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="photo-info">
+                        <p class="customer-review">"Produk berkualitas dengan harga terjangkau. Sangat merekomendasikan!"</p>
+                        <div class="rating">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="photo-card">
+                    <div class="photo-wrapper">
+                        <img src="20260116_184035.png" alt="Testimoni pelanggan 2">
+                        <div class="photo-overlay">
+                            <div class="photo-text">
+                                <p class="product-used">Menggunakan: Herbal Mix</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="photo-info">
+                        <p class="customer-review">"Kesehatan saya membaik sejak rutin mengonsumsi produk ini setiap hari."</p>
+                        <div class="rating">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="photo-card">
+                    <div class="photo-wrapper">
+                        <img src="20260116_184035.png" alt="Testimoni pelanggan 3">
+                        <div class="photo-overlay">
+                            <div class="photo-text">
+                                <p class="product-used">Menggunakan: Herbal Premium</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="photo-info">
+                        <p class="customer-review">"Pelayanan bagus, pengiriman cepat, dan produk sampai dengan aman!"</p>
+                        <div class="rating">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="photo-card">
+                    <div class="photo-wrapper">
+                        <img src="20260116_184035.png" alt="Testimoni pelanggan 4">
+                        <div class="photo-overlay">
+                            <div class="photo-text">
+                                <p class="product-used">Menggunakan: Black Garlic</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="photo-info">
+                        <p class="customer-review">"Produk alami yang aman untuk keluarga. Sudah mencoba dan hasilnya luar biasa!"</p>
+                        <div class="rating">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="photo-card">
+                    <div class="photo-wrapper">
+                        <img src="20260116_184035.png" alt="Testimoni pelanggan 5">
+                        <div class="photo-overlay">
+                            <div class="photo-text">
+                                <p class="product-used">Menggunakan: All Products</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="photo-info">
+                        <p class="customer-review">"Investasi terbaik untuk kesehatan. Sangat puas dengan setiap produk Fresh Herbal!"</p>
+                        <div class="rating">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="photo-card">
+                    <div class="photo-wrapper">
+                        <img src="20260116_184035.png" alt="Testimoni pelanggan 6">
+                        <div class="photo-overlay">
+                            <div class="photo-text">
+                                <p class="product-used">Menggunakan: Herbal Blend</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="photo-info">
+                        <p class="customer-review">"Kualitas terjamin dan teruji. Terima kasih Fresh Herbal telah menjaga kesehatan kami!"</p>
+                        <div class="rating">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
 
-    <!-- Profile Modal -->
-    <div class="modal" id="profileModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Edit Profil</h3>
-                <button class="modal-close" onclick="closeModal('profileModal')">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form id="profileForm">
-                    <div class="form-group">
-                        <label for="editName">Nama Lengkap</label>
-                        <input type="text" id="editName" class="form-control" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="editEmail">Email</label>
-                        <input type="email" id="editEmail" class="form-control" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="editPhone">No. Telepon</label>
-                        <input type="tel" id="editPhone" class="form-control" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="editAddress">Alamat</label>
-                        <textarea id="editAddress" class="form-control" rows="3" required></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="editPassword">Password Baru (kosongkan jika tidak ingin mengubah)</label>
-                        <input type="password" id="editPassword" class="form-control">
-                    </div>
-                    <div class="form-group">
-                        <label for="confirmPassword">Konfirmasi Password</label>
-                        <input type="password" id="confirmPassword" class="form-control">
-                    </div>
-                    <div class="form-actions">
-                        <button type="button" class="btn btn-secondary" onclick="closeModal('profileModal')">Batal</button>
-                        <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
-                    </div>
-                </form>
+    <!-- Statistics Section -->
+    <section class="testimonial-stats">
+        <div class="container">
+            <div class="stats-wrapper">
+                <div class="stat-item">
+                    <div class="stat-number">5000+</div>
+                    <div class="stat-label">Pelanggan Puas</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">4.9/5</div>
+                    <div class="stat-label">Rating Rata-rata</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">100%</div>
+                    <div class="stat-label">Produk Alami</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">24/7</div>
+                    <div class="stat-label">Dukungan Pelanggan</div>
+                </div>
             </div>
         </div>
-    </div>
+    </section>
 
     <!-- Footer -->
     <footer class="main-footer">
         <div class="container">
             <div class="footer-content">
                 <div class="footer-section">
-    <h3>
-        <img src="logo-main.png" alt="Logo Fresh Herbal" class="logo-img">
-        Fresh Herbal
-    </h3>
-                    <p>Menyediakan produk herbal alami untuk kesehatan keluarga Indonesia sejak 2020.</p>
+                    <h3><i class="fas fa-leaf"></i> Fresh Herbal</h3>
+                    <p>Menyediakan produk herbal alami untuk kesehatan keluarga Indonesia sejak 2010.</p>
                 </div>
                 <div class="footer-section">
                     <h3>Kontak Kami</h3>
-                    <p><i class="fas fa-map-marker-alt"></i>Ds Watukenongo, Kec Pungging,
-Kab Mojokerto, Jawa timur 68166</p>
-                    <p><i class="fas fa-phone"></i>085222031212</p>
-                    <p><i class="fas fa-envelope"></i>freshherbalblackgarlic@gmail.com</p>
+                    <p><i class="fas fa-map-marker-alt"></i> Jl. Sehat No. 123, Jakarta</p>
+                    <p><i class="fas fa-phone"></i> (021) 1234-5678</p>
+                    <p><i class="fas fa-envelope"></i> info@freshherbal.com</p>
                 </div>
                 <div class="footer-section">
                     <h3>Jam Operasional</h3>
-                    <p>Senin - Jumat: 07:00 - 15:00</p>
-                    <p>Sabtu: 07:00 - 13:00</p>
-                    <p>Minggu: Libur</p>
+                    <p>Senin - Jumat: 08:00 - 17:00</p>
+                    <p>Sabtu: 08:00 - 15:00</p>
+                    <p>Minggu: Tutup</p>
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>&copy; 2020 Fresh Herbal. Hak Cipta Dilindungi.</p>
+                <p>&copy; 2024 Fresh Herbal. Hak Cipta Dilindungi.</p>
             </div>
         </div>
     </footer>
