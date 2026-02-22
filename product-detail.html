@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fresh Herbal - Toko Herbal Alami</title>
+    <title>Detail Produk - Fresh Herbal</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/responsive.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -15,10 +15,11 @@
         <div class="container">
             <div class="header-content">
                 <div class="logo">
-    <h1>
-        <img src="logo-main.png" alt="Logo Fresh Herbal" class="logo-img">
-        Fresh Herbal Nutritions
-    </h1>
+                    <h1>
+                        <img src="images/logo-main.png" alt="Logo Fresh Herbal" class="logo-img">
+                        Fresh Herbal
+                    </h1>
+                    <p class="tagline">Kesehatan Alami dari Alam</p>
                 </div>
                 
                 <button class="mobile-menu-btn" aria-label="Toggle menu">
@@ -29,9 +30,9 @@
                     <ul>
                         <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
                         <li><a href="about.html"><i class="fas fa-info-circle"></i> Tentang Kami</a></li>
-                        <li><a href="Catalog.html"><i class="fas fa-store"></i> Katalog</a></li>
+                        <li><a href="catalog.html"><i class="fas fa-store"></i> Katalog</a></li>
                         <li><a href="cart.html"><i class="fas fa-shopping-cart"></i> Keranjang <span class="cart-count">0</span></a></li>
-                        <li><a href="dashboard.html"><i class="fas fa-user"></i> Testimoni</a></li>
+                        <li><a href="dashboard.html"><i class="fas fa-comments"></i> Testimoni</a></li>
                     </ul>
                 </nav>
             </div>
@@ -40,28 +41,28 @@
     
     <section class="product-detail">
         <div class="container">
-            <div class="product-detail-grid">
+            <div class="product-detail-grid" id="productDetailContainer">
                 <div class="product-images">
-                    <img id="mainImage" src="" alt="Product Image">
+                    <img id="mainImage" src="images/placeholder.jpg" alt="Product Image" onerror="this.src='images/placeholder.jpg'">
                 </div>
                 <div class="product-info">
-                    <h1 id="productName"></h1>
-                    <p class="product-price" id="productPrice"></p>
-                    <p class="product-description" id="productDescription"></p>
+                    <h1 id="productName">Loading...</h1>
+                    <p class="product-price" id="productPrice">Rp 0</p>
+                    <p class="product-description" id="productDescription">Memuat data produk...</p>
                     
                     <div class="product-actions">
                         <div class="quantity-selector">
-                            <button onclick="changeQuantity(-1)">-</button>
-                            <input type="number" id="quantity" value="1" min="1">
-                            <button onclick="changeQuantity(1)">+</button>
+                            <button onclick="changeQuantity(-1)" class="quantity-btn">-</button>
+                            <input type="number" id="quantity" value="1" min="1" max="99">
+                            <button onclick="changeQuantity(1)" class="quantity-btn">+</button>
                         </div>
-                        <button onclick="addToCartFromDetail()" class="btn btn-primary">
+                        <button onclick="addToCartFromDetail()" class="btn btn-primary" id="addToCartBtn">
                             <i class="fas fa-cart-plus"></i> Tambah ke Keranjang
                         </button>
                     </div>
                     
                     <div class="product-meta">
-                        <p><strong>Kategori:</strong> <span id="productCategory"></span></p>
+                        <p><strong>Kategori:</strong> <span id="productCategory">-</span></p>
                         <p><strong>Stok:</strong> <span id="productStock">Tersedia</span></p>
                     </div>
                 </div>
@@ -74,33 +75,33 @@
         <div class="container">
             <div class="footer-content">
                 <div class="footer-section">
-    <h3>
-        <img src="logo-main.png" alt="Logo Fresh Herbal" class="logo-img">
-        Fresh Herbal
-    </h3>
-                    <p>Menyediakan produk herbal alami untuk kesehatan keluarga Indonesia sejak 2020.</p>
+                    <h3>
+                        <img src="images/logo-main.png" alt="Logo Fresh Herbal" class="logo-img">
+                        Fresh Herbal
+                    </h3>
+                    <p>Menyediakan produk herbal alami untuk kesehatan keluarga Indonesia sejak 2010.</p>
                 </div>
                 <div class="footer-section">
                     <h3>Kontak Kami</h3>
-                    <p><i class="fas fa-map-marker-alt"></i>Ds Watukenongo, Kec Pungging,
-Kab Mojokerto, Jawa timur 68166</p>
-                    <p><i class="fas fa-phone"></i>085222031212</p>
-                    <p><i class="fas fa-envelope"></i>freshherbalblackgarlic@gmail.com</p>
+                    <p><i class="fas fa-map-marker-alt"></i> Ds Watukenongo, Kec Pungging, Kab Mojokerto, Jawa Timur 68166</p>
+                    <p><i class="fas fa-phone"></i> +62 856-4958-9679</p>
+                    <p><i class="fas fa-envelope"></i> freshherbalblackgarlic@gmail.com</p>
                 </div>
                 <div class="footer-section">
                     <h3>Jam Operasional</h3>
-                    <p>Senin - Jumat: 07:00 - 15:00</p>
-                    <p>Sabtu: 07:00 - 13:00</p>
-                    <p>Minggu: Libur</p>
+                    <p>Senin - Jumat: 08:00 - 17:00</p>
+                    <p>Sabtu: 08:00 - 15:00</p>
+                    <p>Minggu: Tutup</p>
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>&copy; 2020 Fresh Herbal. Hak Cipta Dilindungi.</p>
+                <p>&copy; 2024 Fresh Herbal. Hak Cipta Dilindungi.</p>
             </div>
         </div>
     </footer>
     
+    <script src="js/utils.js"></script>
     <script src="js/main.js"></script>
-    <script src="js/product.js"></script>
+    <script src="js/products.js"></script>
 </body>
 </html>
