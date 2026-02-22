@@ -1,399 +1,292 @@
-// Dashboard JavaScript
+// Testimonial Page JavaScript
 
 document.addEventListener('DOMContentLoaded', function() {
-    loadDashboardData();
-    setupDashboardEvents();
+    initializeTestimonials();
+    setupVideoPlayers();
 });
 
-function loadDashboardData() {
-    // Load user data
-    loadUserData();
-    
-    // Load order statistics
-    loadOrderStatistics();
-    
-    // Load recent orders
-    loadRecentOrders();
+// Initialize testimonials page
+function initializeTestimonials() {
+    setupEventListeners();
+    animateOnScroll();
+    loadTestimonialStats();
 }
 
-function loadUserData() {
-    const userData = getUserData();
+// Setup video players
+function setupVideoPlayers() {
+    const videos = document.querySelectorAll('.video-container video');
     
-    document.getElementById('userName').textContent = userData.name || 'Pelanggan';
-    document.getElementById('userFullName').textContent = userData.name || 'Pelanggan Fresh Herbal';
-    document.getElementById('userEmail').textContent = userData.email || 'customer@example.com';
-    document.getElementById('userPhone').textContent = userData.phone || '081234567890';
-    document.getElementById('userAddress').textContent = userData.address || 'Jl. Contoh No. 123, Jakarta';
-    document.getElementById('memberSince').textContent = userData.memberSince || 'Januari 2024';
-}
-
-function loadOrderStatistics() {
-    const orders = getOrders();
-    
-    const totalOrders = orders.length;
-    const completedOrders = orders.filter(order => order.status === 'completed').length;
-    const pendingOrders = orders.filter(order => order.status === 'pending' || order.status === 'processing').length;
-    
-    const totalSpent = orders.reduce((total, order) => {
-        if (order.status === 'completed') {
-            return total + calculateOrderTotal(order.items);
+    videos.forEach(video => {
+        // Add poster/thumbnail if not set
+        if (!video.poster) {
+            const videoCard = video.closest('.video-card');
+            if (videoCard) {
+                const title = videoCard.querySelector('h3')?.textContent || 'video';
+                // Set default poster
+                video.poster = 'images/video-thumbnail.jpg';
+            }
         }
-        return total;
-    }, 0);
-    
-    document.getElementById('totalOrders').textContent = totalOrders;
-    document.getElementById('completedOrders').textContent = completedOrders;
-    document.getElementById('pendingOrders').textContent = pendingOrders;
-    document.getElementById('totalSpent').textContent = `Rp ${totalSpent.toLocaleString('id-ID')}`;
-}
-
-function loadRecentOrders() {
-    const orders = getOrders();
-    const recentOrdersContainer = document.getElementById('recentOrders');
-    
-    if (!recentOrdersContainer) return;
-    
-    // Sort orders by date (newest first)
-    const sortedOrders = orders.sort((a, b) => new Date(b.date) - new Date(a.date));
-    
-    // Get last 5 orders
-    const recentOrders = sortedOrders.slice(0, 5);
-    
-    if (recentOrders.length === 0) {
-        recentOrdersContainer.innerHTML = `
-            <div class="empty-state">
-                <p>Belum ada pesanan</p>
-                <a href="catalog.html" class="btn btn-primary">Mulai Belanja</a>
-            </div>
-        `;
-        return;
-    }
-    
-    recentOrdersContainer.innerHTML = recentOrders.map(order => `
-        <li class="recent-order-item">
-            <div class="order-info">
-                <strong>${order.orderId}</strong>
-                <small>${formatDate(order.date)}</small>
-            </div>
-            <div class="order-status-container">
-                <span class="order-status status-${order.status}">
-                    ${getStatusText(order.status)}
-                </span>
-                <span class="order-total">
-                    Rp ${calculateOrderTotal(order.items).toLocaleString('id-ID')}
-                </span>
-            </div>
-        </li>
-    `).join('');
-}
-
-function calculateOrderTotal(items) {
-    return items.reduce((total, item) => total + (item.price * item.quantity), 0);
-}
-
-function formatDate(dateString) {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('id-ID', {
-        day: 'numeric',
-        month: 'short',
-        year: 'numeric'
-    });
-}
-
-function getStatusText(status) {
-    const statusMap = {
-        'pending': 'Menunggu',
-        'processing': 'Diproses',
-        'shipped': 'Dikirim',
-        'completed': 'Selesai',
-        'cancelled': 'Dibatalkan'
-    };
-    
-    return statusMap[status] || status;
-}
-
-function getUserData() {
-    const savedData = localStorage.getItem('freshHerbalUser');
-    
-    if (savedData) {
-        return JSON.parse(savedData);
-    }
-    
-    // Default user data
-    const defaultData = {
-        name: 'Pelanggan Fresh Herbal',
-        email: 'customer@example.com',
-        phone: '081234567890',
-        address: 'Jl. Contoh No. 123, Jakarta',
-        memberSince: 'Januari 2024'
-    };
-    
-    localStorage.setItem('freshHerbalUser', JSON.stringify(defaultData));
-    return defaultData;
-}
-
-function getOrders() {
-    return JSON.parse(localStorage.getItem('freshHerbalOrders')) || [];
-}
-
-// Modal Functions
-function editProfile() {
-    const userData = getUserData();
-    const modal = document.getElementById('profileModal');
-    
-    // Fill form with current data
-    document.getElementById('editName').value = userData.name;
-    document.getElementById('editEmail').value = userData.email;
-    document.getElementById('editPhone').value = userData.phone;
-    document.getElementById('editAddress').value = userData.address;
-    
-    // Show modal
-    modal.style.display = 'block';
-}
-
-function closeModal(modalId) {
-    document.getElementById(modalId).style.display = 'none';
-}
-
-function setupDashboardEvents() {
-    // Profile form submission
-    const profileForm = document.getElementById('profileForm');
-    if (profileForm) {
-        profileForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            saveProfileChanges();
+        
+        // Handle video play tracking
+        video.addEventListener('play', function() {
+            const videoTitle = this.closest('.video-card')?.querySelector('h3')?.textContent || 'Unknown';
+            trackVideoPlay(videoTitle);
+            
+            // Pause other videos when this one plays
+            videos.forEach(otherVideo => {
+                if (otherVideo !== video && !otherVideo.paused) {
+                    otherVideo.pause();
+                }
+            });
         });
-    }
-    
-    // Close modal when clicking outside
-    window.addEventListener('click', function(e) {
-        const modals = document.querySelectorAll('.modal');
-        modals.forEach(modal => {
-            if (e.target === modal) {
-                modal.style.display = 'none';
+        
+        // Add error handling
+        video.addEventListener('error', function() {
+            console.warn('Video failed to load');
+            const container = this.closest('.video-container');
+            if (container) {
+                container.innerHTML += '<div class="video-error">Video tidak dapat dimuat</div>';
             }
         });
     });
-    
-    // Escape key to close modal
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') {
-            const modals = document.querySelectorAll('.modal');
-            modals.forEach(modal => {
-                modal.style.display = 'none';
-            });
-        }
+}
+
+// Setup event listeners for interactive elements
+function setupEventListeners() {
+    // Video card hover effects
+    const videoCards = document.querySelectorAll('.video-card');
+    videoCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.cursor = 'pointer';
+        });
+        
+        card.addEventListener('click', function(e) {
+            // Don't trigger if clicking on video controls
+            if (!e.target.closest('video')) {
+                const video = this.querySelector('video');
+                if (video) {
+                    if (video.paused) {
+                        video.play();
+                    } else {
+                        video.pause();
+                    }
+                }
+            }
+        });
+    });
+
+    // Photo card hover effects
+    const photoCards = document.querySelectorAll('.photo-card');
+    photoCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.cursor = 'pointer';
+        });
     });
 }
 
-function saveProfileChanges() {
-    const form = document.getElementById('profileForm');
+// Animate elements on scroll
+function animateOnScroll() {
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+                
+                // Animate stats if they become visible
+                if (entry.target.classList.contains('stat-item')) {
+                    animateStats(entry.target);
+                }
+            }
+        });
+    }, {
+        threshold: 0.1,
+        rootMargin: '0px 0px -100px 0px'
+    });
+
+    // Observe all cards
+    const cards = document.querySelectorAll('.video-card, .photo-card, .stat-item, .section-header');
+    cards.forEach(card => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+        observer.observe(card);
+    });
+}
+
+// Animate statistics numbers
+function animateStats(statElement) {
+    const numberElement = statElement.querySelector('.stat-number');
+    if (!numberElement) return;
     
-    if (!validateProfileForm(form)) {
-        return;
-    }
+    const targetNumber = parseInt(numberElement.textContent.replace(/[^0-9]/g, ''));
+    if (isNaN(targetNumber)) return;
     
-    const userData = {
-        name: document.getElementById('editName').value,
-        email: document.getElementById('editEmail').value,
-        phone: document.getElementById('editPhone').value,
-        address: document.getElementById('editAddress').value,
-        memberSince: getUserData().memberSince || 'Januari 2024'
+    let currentNumber = 0;
+    const duration = 2000; // 2 seconds
+    const steps = 60;
+    const increment = targetNumber / steps;
+    let step = 0;
+    
+    const timer = setInterval(() => {
+        step++;
+        currentNumber = Math.min(Math.floor(increment * step), targetNumber);
+        
+        if (numberElement.textContent.includes('.')) {
+            // Handle decimal numbers like 4.9
+            const decimal = (targetNumber % 1).toFixed(1);
+            numberElement.textContent = currentNumber + decimal.substring(1);
+        } else if (numberElement.textContent.includes('/')) {
+            // Handle ratings like 4.9/5
+            const rating = (currentNumber / steps * 5).toFixed(1);
+            numberElement.textContent = rating + '/5';
+        } else {
+            // Handle regular numbers
+            numberElement.textContent = currentNumber + '+';
+        }
+        
+        if (step >= steps) {
+            clearInterval(timer);
+        }
+    }, duration / steps);
+}
+
+// Load testimonial statistics
+function loadTestimonialStats() {
+    // In a real app, this would fetch from an API
+    // For now, we'll use static data
+    
+    const stats = {
+        totalCustomers: 5234,
+        averageRating: 4.9,
+        naturalProducts: 100,
+        supportHours: '24/7'
     };
     
-    // Check if password is being changed
-    const newPassword = document.getElementById('editPassword').value;
-    const confirmPassword = document.getElementById('confirmPassword').value;
+    // Update stats if needed dynamically
+}
+
+// Track video play (for analytics)
+function trackVideoPlay(videoTitle) {
+    const playHistory = storage.get('videoPlayHistory', []);
+    playHistory.push({
+        video: videoTitle,
+        timestamp: new Date().toISOString()
+    });
+    storage.set('videoPlayHistory', playHistory);
     
-    if (newPassword) {
-        if (newPassword !== confirmPassword) {
-            showNotification('Password tidak cocok!', 'error');
-            return;
+    console.log(`Video played: ${videoTitle}`);
+}
+
+// Add smooth scroll behavior
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+            target.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
         }
-        
-        if (newPassword.length < 6) {
-            showNotification('Password minimal 6 karakter!', 'error');
-            return;
-        }
-        
-        userData.password = newPassword; // Note: In real app, encrypt this
-    }
-    
-    // Save to localStorage
-    localStorage.setItem('freshHerbalUser', JSON.stringify(userData));
-    
-    // Update UI
-    loadUserData();
-    
-    // Close modal
-    closeModal('profileModal');
-    
-    // Show success message
-    showNotification('Profil berhasil diperbarui!', 'success');
-}
+    });
+});
 
-function validateProfileForm(form) {
-    const name = document.getElementById('editName').value.trim();
-    const email = document.getElementById('editEmail').value.trim();
-    const phone = document.getElementById('editPhone').value.trim();
-    const address = document.getElementById('editAddress').value.trim();
-    
-    if (!name || !email || !phone || !address) {
-        showNotification('Semua field wajib diisi!', 'error');
-        return false;
+// Add CSS for animations if needed
+const testimonialStyles = document.createElement('style');
+testimonialStyles.textContent = `
+    .video-card,
+    .photo-card,
+    .stat-item {
+        transition: all 0.3s ease;
     }
     
-    // Email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-        showNotification('Format email tidak valid!', 'error');
-        return false;
+    .video-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 16px rgba(0,0,0,0.15);
     }
     
-    // Phone validation
-    const phoneRegex = /^[0-9]{10,13}$/;
-    if (!phoneRegex.test(phone)) {
-        showNotification('Nomor telepon harus 10-13 digit angka!', 'error');
-        return false;
+    .photo-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 16px rgba(0,0,0,0.15);
     }
     
-    return true;
-}
-
-function showSupport() {
-    alert('Silakan hubungi kami di:\n📞 (021) 1234-5678\n✉️ support@freshherbal.com\n\nJam operasional: Senin-Jumat 08:00-17:00');
-}
-
-function showSettings() {
-    alert('Fitur pengaturan akan segera tersedia!');
-}
-
-// Add CSS for modal
-const modalStyles = document.createElement('style');
-modalStyles.textContent = `
-    .modal {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.5);
-        z-index: 1000;
-        animation: fadeIn 0.3s ease;
+    /* Smooth transitions for all interactive elements */
+    .video-container {
+        transition: filter 0.3s ease;
     }
     
-    @keyframes fadeIn {
-        from { opacity: 0; }
-        to { opacity: 1; }
+    .video-card:hover .video-container {
+        filter: brightness(1.05);
     }
     
-    .modal-content {
-        background-color: white;
-        margin: 50px auto;
-        padding: 0;
-        width: 90%;
-        max-width: 600px;
-        border-radius: 8px;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-        animation: slideIn 0.3s ease;
+    .photo-wrapper img {
+        transition: transform 0.3s ease;
     }
     
-    @keyframes slideIn {
+    .photo-card:hover .photo-wrapper img {
+        transform: scale(1.05);
+    }
+    
+    /* Video error message */
+    .video-error {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(0,0,0,0.7);
+        color: white;
+        padding: 10px 20px;
+        border-radius: 4px;
+        font-size: 14px;
+    }
+    
+    /* Counter animation */
+    .stat-number {
+        animation: countUp 1s ease-in-out;
+        display: inline-block;
+    }
+    
+    @keyframes countUp {
         from {
-            transform: translateY(-50px);
             opacity: 0;
+            transform: translateY(-10px);
         }
         to {
-            transform: translateY(0);
             opacity: 1;
+            transform: translateY(0);
         }
     }
     
-    .modal-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 1.5rem;
-        border-bottom: 1px solid #e0e0e0;
+    /* Loading state for videos */
+    .video-container.loading::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 1;
     }
     
-    .modal-header h3 {
-        margin: 0;
-        color: #2e7d32;
+    .video-container.loading::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 40px;
+        height: 40px;
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #4caf50;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        z-index: 2;
     }
     
-    .modal-close {
-        background: none;
-        border: none;
-        font-size: 1.2rem;
-        cursor: pointer;
-        color: #666;
-    }
-    
-    .modal-close:hover {
-        color: #333;
-    }
-    
-    .modal-body {
-        padding: 1.5rem;
-    }
-    
-    .form-actions {
-        display: flex;
-        gap: 1rem;
-        margin-top: 2rem;
-    }
-    
-    .form-actions .btn {
-        flex: 1;
-    }
-    
-    .empty-state {
-        text-align: center;
-        padding: 2rem;
-    }
-    
-    .empty-state p {
-        color: #666;
-        margin-bottom: 1rem;
-    }
-    
-    .order-status-container {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-end;
-        gap: 0.5rem;
-    }
-    
-    .order-total {
-        font-weight: 600;
-        color: #2e7d32;
-    }
-    
-    .status-pending {
-        background-color: #fff3e0;
-        color: #f57c00;
-    }
-    
-    .status-processing {
-        background-color: #e3f2fd;
-        color: #1976d2;
-    }
-    
-    .status-shipped {
-        background-color: #e8eaf6;
-        color: #3f51b5;
-    }
-    
-    .status-completed {
-        background-color: #e8f5e9;
-        color: #2e7d32;
-    }
-    
-    .status-cancelled {
-        background-color: #ffebee;
-        color: #c62828;
+    @keyframes spin {
+        0% { transform: translate(-50%, -50%) rotate(0deg); }
+        100% { transform: translate(-50%, -50%) rotate(360deg); }
     }
 `;
-document.head.appendChild(modalStyles);
+document.head.appendChild(testimonialStyles);
