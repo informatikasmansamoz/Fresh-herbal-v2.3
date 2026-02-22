@@ -6,7 +6,6 @@
     <title>Riwayat Pesanan - Fresh Herbal</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/responsive.css">
-    <link rel="stylesheet" href="css/dashboard.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
@@ -16,10 +15,11 @@
         <div class="container">
             <div class="header-content">
                 <div class="logo">
-    <h1>
-        <img src="logo-main.png" alt="Logo Fresh Herbal" class="logo-img">
-        Fresh Herbal Nutritions
-    </h1>
+                    <h1>
+                        <img src="images/logo-main.png" alt="Logo Fresh Herbal" class="logo-img">
+                        Fresh Herbal
+                    </h1>
+                    <p class="tagline">Kesehatan Alami dari Alam</p>
                 </div>
                 
                 <button class="mobile-menu-btn" aria-label="Toggle menu">
@@ -30,9 +30,9 @@
                     <ul>
                         <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
                         <li><a href="about.html"><i class="fas fa-info-circle"></i> Tentang Kami</a></li>
-                        <li><a href="Catalog.html"><i class="fas fa-store"></i> Katalog</a></li>
+                        <li><a href="catalog.html"><i class="fas fa-store"></i> Katalog</a></li>
                         <li><a href="cart.html"><i class="fas fa-shopping-cart"></i> Keranjang <span class="cart-count">0</span></a></li>
-                        <li><a href="dashboard.html"><i class="fas fa-user"></i> Dashboard</a></li>
+                        <li><a href="dashboard.html"><i class="fas fa-comments"></i> Testimoni</a></li>
                     </ul>
                 </nav>
             </div>
@@ -53,9 +53,9 @@
             <div class="filters">
                 <div class="filter-group">
                     <label for="statusFilter"><i class="fas fa-filter"></i> Filter Status:</label>
-                    <select id="statusFilter">
+                    <select id="statusFilter" class="form-control">
                         <option value="">Semua Status</option>
-                        <option value="pending">Menunggu</option>
+                        <option value="pending">Menunggu Pembayaran</option>
                         <option value="processing">Diproses</option>
                         <option value="shipped">Dikirim</option>
                         <option value="completed">Selesai</option>
@@ -65,7 +65,7 @@
                 
                 <div class="filter-group">
                     <label for="dateFilter"><i class="fas fa-calendar"></i> Periode:</label>
-                    <select id="dateFilter">
+                    <select id="dateFilter" class="form-control">
                         <option value="all">Semua Waktu</option>
                         <option value="7days">7 Hari Terakhir</option>
                         <option value="30days">30 Hari Terakhir</option>
@@ -76,7 +76,7 @@
                 
                 <div class="filter-group">
                     <label for="searchOrder"><i class="fas fa-search"></i> Cari:</label>
-                    <input type="text" id="searchOrder" placeholder="Cari Order ID atau produk...">
+                    <input type="text" id="searchOrder" class="form-control" placeholder="Cari Order ID atau produk...">
                 </div>
                 
                 <button onclick="applyFilters()" class="btn btn-primary">
@@ -102,12 +102,13 @@
                 </div>
                 
                 <div class="orders-list" id="ordersList">
-                    <!-- Orders will be loaded here -->
+                    <div class="loading-spinner">
+                        <div class="spinner"></div>
+                        <p>Memuat riwayat pesanan...</p>
+                    </div>
                 </div>
                 
-                <div class="pagination" id="pagination">
-                    <!-- Pagination will be loaded here -->
-                </div>
+                <div class="pagination" id="pagination"></div>
             </div>
             
             <!-- Order Statistics -->
@@ -166,9 +167,7 @@
                     
                     <div class="order-items-section">
                         <h4><i class="fas fa-box"></i> Item Pesanan</h4>
-                        <div class="order-items-list" id="detailItems">
-                            <!-- Order items will be loaded here -->
-                        </div>
+                        <div class="order-items-list" id="detailItems"></div>
                     </div>
                     
                     <div class="customer-info-section">
@@ -205,34 +204,33 @@
         <div class="container">
             <div class="footer-content">
                 <div class="footer-section">
-    <h3>
-        <img src="logo-main.png" alt="Logo Fresh Herbal" class="logo-img">
-        Fresh Herbal
-    </h3>
-                    <p>Menyediakan produk herbal alami untuk kesehatan keluarga Indonesia sejak 2020.</p>
+                    <h3>
+                        <img src="images/logo-main.png" alt="Logo Fresh Herbal" class="logo-img">
+                        Fresh Herbal
+                    </h3>
+                    <p>Menyediakan produk herbal alami untuk kesehatan keluarga Indonesia sejak 2010.</p>
                 </div>
                 <div class="footer-section">
                     <h3>Kontak Kami</h3>
-                    <p><i class="fas fa-map-marker-alt"></i>Ds Watukenongo, Kec Pungging,
-Kab Mojokerto, Jawa timur 68166</p>
-                    <p><i class="fas fa-phone"></i>085222031212</p>
-                    <p><i class="fas fa-envelope"></i>freshherbalblackgarlic@gmail.com</p>
+                    <p><i class="fas fa-map-marker-alt"></i> Ds Watukenongo, Kec Pungging, Kab Mojokerto, Jawa Timur 68166</p>
+                    <p><i class="fas fa-phone"></i> +62 856-4958-9679</p>
+                    <p><i class="fas fa-envelope"></i> freshherbalblackgarlic@gmail.com</p>
                 </div>
                 <div class="footer-section">
                     <h3>Jam Operasional</h3>
-                    <p>Senin - Jumat: 07:00 - 15:00</p>
-                    <p>Sabtu: 07:00 - 13:00</p>
-                    <p>Minggu: Libur</p>
+                    <p>Senin - Jumat: 08:00 - 17:00</p>
+                    <p>Sabtu: 08:00 - 15:00</p>
+                    <p>Minggu: Tutup</p>
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>&copy; 2020 Fresh Herbal. Hak Cipta Dilindungi.</p>
+                <p>&copy; 2024 Fresh Herbal. Hak Cipta Dilindungi.</p>
             </div>
         </div>
     </footer>
 
+    <script src="js/utils.js"></script>
     <script src="js/main.js"></script>
-    <script src="js/dashboard.js"></script>
     <script src="js/order-history.js"></script>
 </body>
 </html>
