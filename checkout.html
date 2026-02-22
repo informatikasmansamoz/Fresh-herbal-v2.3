@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fresh Herbal - Toko Herbal Alami</title>
+    <title>Checkout - Fresh Herbal</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/responsive.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -15,10 +15,11 @@
         <div class="container">
             <div class="header-content">
                 <div class="logo">
-    <h1>
-        <img src="logo-main.png" alt="Logo Fresh Herbal" class="logo-img">
-        Fresh Herbal Nutritions
-    </h1>
+                    <h1>
+                        <img src="images/logo-main.png" alt="Logo Fresh Herbal" class="logo-img">
+                        Fresh Herbal
+                    </h1>
+                    <p class="tagline">Kesehatan Alami dari Alam</p>
                 </div>
                 
                 <button class="mobile-menu-btn" aria-label="Toggle menu">
@@ -29,86 +30,111 @@
                     <ul>
                         <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
                         <li><a href="about.html"><i class="fas fa-info-circle"></i> Tentang Kami</a></li>
-                        <li><a href="Catalog.html"><i class="fas fa-store"></i> Katalog</a></li>
+                        <li><a href="catalog.html"><i class="fas fa-store"></i> Katalog</a></li>
                         <li><a href="cart.html"><i class="fas fa-shopping-cart"></i> Keranjang <span class="cart-count">0</span></a></li>
-                        <li><a href="dashboard.html"><i class="fas fa-user"></i> Testimoni</a></li>
+                        <li><a href="dashboard.html"><i class="fas fa-comments"></i> Testimoni</a></li>
                     </ul>
                 </nav>
             </div>
         </div>
     </header>
-<section class="checkout">
-    <div class="container">
-        <div class="checkout-grid">
-            <div class="checkout-form">
-                <h2>Informasi Pengiriman</h2>
-                <form id="checkoutForm">
-                    <div class="form-group">
-                        <label for="name">Nama Lengkap *</label>
-                        <input type="text" id="name" required>
+
+    <section class="page-header">
+        <div class="container">
+            <h1>Checkout</h1>
+            <p>Lengkapi data pengiriman Anda</p>
+        </div>
+    </section>
+
+    <section class="checkout">
+        <div class="container">
+            <div class="checkout-grid">
+                <div class="checkout-form">
+                    <h2><i class="fas fa-truck"></i> Informasi Pengiriman</h2>
+                    <form id="checkoutForm" onsubmit="event.preventDefault(); processCheckout();">
+                        <div class="form-group">
+                            <label for="name">Nama Lengkap <span class="required">*</span></label>
+                            <input type="text" id="name" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email <span class="required">*</span></label>
+                            <input type="email" id="email" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">No. Telepon <span class="required">*</span></label>
+                            <input type="tel" id="phone" class="form-control" required placeholder="08123456789">
+                        </div>
+                        <div class="form-group">
+                            <label for="address">Alamat Lengkap <span class="required">*</span></label>
+                            <textarea id="address" class="form-control" rows="3" required placeholder="Jalan, nomor rumah, RT/RW, kelurahan, kecamatan, kota, kode pos"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="payment">Metode Pembayaran <span class="required">*</span></label>
+                            <select id="payment" class="form-control" required>
+                                <option value="">Pilih metode pembayaran</option>
+                                <option value="transfer">Transfer Bank (BCA, Mandiri, BRI)</option>
+                                <option value="cod">Cash on Delivery (COD)</option>
+                                <option value="ewallet">E-Wallet (GoPay, OVO, Dana)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <a href="cart.html" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Kembali ke Keranjang
+                            </a>
+                            <button type="submit" class="btn btn-primary" id="checkoutSubmitBtn">
+                                <i class="fas fa-check"></i> Buat Pesanan
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                
+                <div class="order-summary">
+                    <h2><i class="fas fa-receipt"></i> Ringkasan Pesanan</h2>
+                    <div id="orderItems" class="order-items">
+                        <div class="loading-spinner">
+                            <div class="spinner"></div>
+                            <p>Memuat pesanan...</p>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="email">Email *</label>
-                        <input type="email" id="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="phone">No. Telepon *</label>
-                        <input type="tel" id="phone" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="address">Alamat Lengkap *</label>
-                        <textarea id="address" rows="3" required></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="payment">Metode Pembayaran *</label>
-                        <select id="payment" required>
-                            <option value="">Pilih metode</option>
-                            <option value="transfer">Transfer Bank</option>
-                            <option value="cod">COD</option>
-                            <option value="ewallet">E-Wallet</option>
-                        </select>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Proses Pesanan</button>
-                </form>
-            </div>
-            <div class="order-summary">
-                <h2>Ringkasan Pesanan</h2>
-                <div id="orderItems"></div>
-                <div id="orderTotal"></div>
+                    <div id="orderTotal" class="order-total"></div>
+                </div>
             </div>
         </div>
-    </div>
-</section>
+    </section>
 
     <!-- Footer -->
     <footer class="main-footer">
         <div class="container">
             <div class="footer-content">
                 <div class="footer-section">
-    <h3>
-        <img src="logo-main.png" alt="Logo Fresh Herbal" class="logo-img">
-        Fresh Herbal
-    </h3>
-                    <p>Menyediakan produk herbal alami untuk kesehatan keluarga Indonesia sejak 2020.</p>
+                    <h3>
+                        <img src="images/logo-main.png" alt="Logo Fresh Herbal" class="logo-img">
+                        Fresh Herbal
+                    </h3>
+                    <p>Menyediakan produk herbal alami untuk kesehatan keluarga Indonesia sejak 2010.</p>
                 </div>
                 <div class="footer-section">
                     <h3>Kontak Kami</h3>
-                    <p><i class="fas fa-map-marker-alt"></i>Ds Watukenongo, Kec Pungging,
-Kab Mojokerto, Jawa timur 68166</p>
-                    <p><i class="fas fa-phone"></i>085222031212</p>
-                    <p><i class="fas fa-envelope"></i>freshherbalblackgarlic@gmail.com</p>
+                    <p><i class="fas fa-map-marker-alt"></i> Ds Watukenongo, Kec Pungging, Kab Mojokerto, Jawa Timur 68166</p>
+                    <p><i class="fas fa-phone"></i> +62 856-4958-9679</p>
+                    <p><i class="fas fa-envelope"></i> freshherbalblackgarlic@gmail.com</p>
                 </div>
                 <div class="footer-section">
                     <h3>Jam Operasional</h3>
-                    <p>Senin - Jumat: 07:00 - 15:00</p>
-                    <p>Sabtu: 07:00 - 13:00</p>
-                    <p>Minggu: Libur</p>
+                    <p>Senin - Jumat: 08:00 - 17:00</p>
+                    <p>Sabtu: 08:00 - 15:00</p>
+                    <p>Minggu: Tutup</p>
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>&copy; 2020 Fresh Herbal. Hak Cipta Dilindungi.</p>
+                <p>&copy; 2024 Fresh Herbal. Hak Cipta Dilindungi.</p>
             </div>
         </div>
     </footer>
+
+    <script src="js/utils.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/checkout.js"></script>
 </body>
 </html>
