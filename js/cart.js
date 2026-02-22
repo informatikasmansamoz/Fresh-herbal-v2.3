@@ -13,8 +13,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Load cart from localStorage
 function loadCart() {
-    const savedCart = localStorage.getItem('freshHerbalCart');
-    cart = savedCart ? JSON.parse(savedCart) : [];
+    cart = storage.get('freshHerbalCart', []);
     
     displayCartItems();
     updateCartSummary();
@@ -26,13 +25,15 @@ function loadCart() {
 // Display cart items
 function displayCartItems() {
     const container = document.getElementById('cartItemsContainer');
+    const cartActions = document.getElementById('cartActions');
+    const recommendedSection = document.getElementById('recommendedSection');
     
     if (!container) return;
     
     if (cart.length === 0) {
         container.innerHTML = `
             <div class="empty-cart">
-                <i class="fas fa-shopping-cart"></i>
+                <i class="fas fa-shopping-cart fa-4x"></i>
                 <h2>Keranjang Belanja Kosong</h2>
                 <p>Belum ada produk di keranjang belanja Anda. Mulai belanja dan tambahkan produk herbal favorit Anda!</p>
                 <a href="catalog.html" class="btn btn-primary">
@@ -41,13 +42,15 @@ function displayCartItems() {
             </div>
         `;
         
-        // Hide cart actions if cart is empty
-        document.getElementById('cartActions').style.display = 'none';
+        // Hide cart actions and recommended section if cart is empty
+        if (cartActions) cartActions.style.display = 'none';
+        if (recommendedSection) recommendedSection.style.display = 'none';
         return;
     }
     
-    // Show cart actions
-    document.getElementById('cartActions').style.display = 'flex';
+    // Show cart actions and recommended section
+    if (cartActions) cartActions.style.display = 'flex';
+    if (recommendedSection) recommendedSection.style.display = 'block';
     
     // Display cart items
     container.innerHTML = cart.map(item => `
@@ -56,14 +59,14 @@ function displayCartItems() {
                 <i class="fas fa-times"></i>
             </button>
             
-            <img src="${item.image || 'https://via.placeholder.com/100x100?text=Herbal'}" 
+            <img src="${item.image || 'images/placeholder.jpg'}" 
                  alt="${item.name}" 
                  class="cart-item-image"
-                 onerror="this.src='https://via.placeholder.com/100x100?text=Herbal'">
+                 onerror="this.src='images/placeholder.jpg'">
             
             <div class="cart-item-info">
                 <h3 class="cart-item-name">${item.name}</h3>
-                <p class="cart-item-price">Rp ${item.price.toLocaleString('id-ID')}</p>
+                <p class="cart-item-price">${formatCurrency(item.price)}</p>
                 
                 <div class="quantity-controls">
                     <button class="quantity-btn" onclick="updateQuantity(${item.id}, -1)" title="Kurangi jumlah">
@@ -86,7 +89,7 @@ function displayCartItems() {
             
             <div class="cart-item-total">
                 <span class="cart-item-total-label">Subtotal:</span>
-                <span class="cart-item-total-price">Rp ${(item.price * item.quantity).toLocaleString('id-ID')}</span>
+                <span class="cart-item-total-price">${formatCurrency(item.price * item.quantity)}</span>
             </div>
         </div>
     `).join('');
@@ -100,7 +103,7 @@ function updateQuantity(itemId, change, newQuantity = null) {
     
     if (newQuantity !== null) {
         const quantity = parseInt(newQuantity);
-        if (quantity >= 1 && quantity <= 99) {
+        if (!isNaN(quantity) && quantity >= 1 && quantity <= 99) {
             cart[itemIndex].quantity = quantity;
         }
     } else {
@@ -115,6 +118,13 @@ function updateQuantity(itemId, change, newQuantity = null) {
     displayCartItems();
     updateCartSummary();
     updateCartCount();
+    
+    // Highlight updated item
+    const itemElement = document.querySelector(`.cart-item[data-id="${itemId}"]`);
+    if (itemElement) {
+        itemElement.classList.add('updating');
+        setTimeout(() => itemElement.classList.remove('updating'), 300);
+    }
 }
 
 // Validate quantity input
@@ -134,12 +144,26 @@ function removeItem(itemId) {
         'Hapus Produk',
         'Apakah Anda yakin ingin menghapus produk ini dari keranjang?',
         function() {
-            cart = cart.filter(item => item.id !== itemId);
-            saveCart();
-            displayCartItems();
-            updateCartSummary();
-            updateCartCount();
-            showNotification('Produk dihapus dari keranjang', 'success');
+            // Animate removal
+            const itemElement = document.querySelector(`.cart-item[data-id="${itemId}"]`);
+            if (itemElement) {
+                itemElement.classList.add('removing');
+                setTimeout(() => {
+                    cart = cart.filter(item => item.id !== itemId);
+                    saveCart();
+                    displayCartItems();
+                    updateCartSummary();
+                    updateCartCount();
+                    showNotification('Produk dihapus dari keranjang', 'success');
+                }, 300);
+            } else {
+                cart = cart.filter(item => item.id !== itemId);
+                saveCart();
+                displayCartItems();
+                updateCartSummary();
+                updateCartCount();
+                showNotification('Produk dihapus dari keranjang', 'success');
+            }
         }
     );
 }
@@ -203,7 +227,7 @@ function updateCartSummary() {
         </div>
         <div class="summary-item">
             <span>Subtotal:</span>
-            <span>Rp ${subtotal.toLocaleString('id-ID')}</span>
+            <span>${formatCurrency(subtotal)}</span>
         </div>
         <div class="summary-item ${shipping === 0 ? 'free-shipping' : ''}">
             <span>Ongkos Kirim:</span>
@@ -211,7 +235,7 @@ function updateCartSummary() {
         </div>
         <div class="summary-item total">
             <span>Total Pembayaran:</span>
-            <span>Rp ${total.toLocaleString('id-ID')}</span>
+            <span>${formatCurrency(total)}</span>
         </div>
     `;
     
@@ -232,19 +256,11 @@ function updateCartSummary() {
                 <i class="fas fa-shipping-fast"></i>
                 <div>
                     <strong>Gratis Ongkos Kirim!</strong>
-                    <p>Tambah belanja Rp ${needed.toLocaleString('id-ID')} lagi untuk gratis ongkir</p>
+                    <p>Tambah belanja ${formatCurrency(needed)} lagi untuk gratis ongkir</p>
                 </div>
             `;
         }
     }
-}
-
-// Update cart count in header
-function updateCartCount() {
-    const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
-    document.querySelectorAll('.cart-count').forEach(el => {
-        el.textContent = totalItems;
-    });
 }
 
 // Update checkout button state
@@ -252,11 +268,13 @@ function updateCheckoutButton() {
     const checkoutBtn = document.getElementById('checkoutBtn');
     if (checkoutBtn) {
         if (cart.length === 0) {
-            checkoutBtn.disabled = true;
-            checkoutBtn.innerHTML = '<i class="fas fa-lock"></i> Keranjang Kosong';
+            checkoutBtn.classList.add('disabled');
+            checkoutBtn.style.pointerEvents = 'none';
+            checkoutBtn.style.opacity = '0.5';
         } else {
-            checkoutBtn.disabled = false;
-            checkoutBtn.innerHTML = '<i class="fas fa-lock"></i> Lanjut ke Pembayaran';
+            checkoutBtn.classList.remove('disabled');
+            checkoutBtn.style.pointerEvents = 'auto';
+            checkoutBtn.style.opacity = '1';
         }
     }
 }
@@ -271,42 +289,59 @@ function updateClearCartButton() {
 
 // Save cart to localStorage
 function saveCart() {
-    localStorage.setItem('freshHerbalCart', JSON.stringify(cart));
+    storage.set('freshHerbalCart', cart);
+}
+
+// Check cart before checkout
+function checkCartBeforeCheckout() {
+    if (cart.length === 0) {
+        showNotification('Keranjang belanja masih kosong', 'warning');
+        return false;
+    }
+    return true;
 }
 
 // Load recommended products
 function loadRecommendedProducts() {
-    // Sample recommended products data
-    recommendedProducts = [
-        {
-            id: 101,
-            name: 'Teh Herbal Jahe',
-            price: 35000,
-            image: 'https://images.unsplash.com/photo-1567336273898-ebbf9eb3c3bf?auto=format&fit=crop&w=500',
-            category: 'Minuman'
-        },
-        {
-            id: 102,
-            name: 'Kapsul Temulawak',
-            price: 55000,
-            image: 'https://images.unsplash.com/photo-1559056199-641a0ac8b55e?auto=format&fit=crop&w=500',
-            category: 'Suplemen'
-        },
-        {
-            id: 103,
-            name: 'Minyak Zaitun',
-            price: 75000,
-            image: 'https://images.unsplash.com/photo-1533050487297-09b450131914?auto=format&fit=crop&w=500',
-            category: 'Minyak'
-        },
-        {
-            id: 104,
-            name: 'Serbuk Kunyit Asam',
-            price: 25000,
-            image: 'https://images.unsplash.com/photo-1596040033221-a1f4f8a8c2a1?auto=format&fit=crop&w=500',
-            category: 'Bubuk'
-        }
-    ];
+    // Gunakan produk dari main.js jika tersedia
+    if (typeof products !== 'undefined') {
+        // Ambil 4 produk random sebagai rekomendasi
+        recommendedProducts = [...products]
+            .sort(() => 0.5 - Math.random())
+            .slice(0, 4);
+    } else {
+        // Fallback data
+        recommendedProducts = [
+            {
+                id: 101,
+                name: 'Teh Herbal Jahe',
+                price: 35000,
+                image: 'images/products/teh-jahe.jpg',
+                category: 'Minuman'
+            },
+            {
+                id: 102,
+                name: 'Kapsul Temulawak',
+                price: 55000,
+                image: 'images/products/kapsul-temulawak.jpg',
+                category: 'Suplemen'
+            },
+            {
+                id: 103,
+                name: 'Minyak Zaitun',
+                price: 75000,
+                image: 'images/products/minyak-zaitun.jpg',
+                category: 'Minyak'
+            },
+            {
+                id: 104,
+                name: 'Serbuk Kunyit Asam',
+                price: 25000,
+                image: 'images/products/kunyit-asam.jpg',
+                category: 'Bubuk'
+            }
+        ];
+    }
     
     displayRecommendedProducts();
 }
@@ -317,15 +352,23 @@ function displayRecommendedProducts() {
     
     if (!container) return;
     
+    if (recommendedProducts.length === 0) {
+        container.innerHTML = '';
+        return;
+    }
+    
     container.innerHTML = recommendedProducts.map(product => `
         <div class="product-card">
-            <img src="${product.image}" alt="${product.name}" class="product-image">
+            <img src="${product.image || 'images/placeholder.jpg'}" 
+                 alt="${product.name}" 
+                 class="product-image"
+                 onerror="this.src='images/placeholder.jpg'">
             <div class="product-info">
                 <h3 class="product-title">${product.name}</h3>
-                <p class="product-category">${product.category}</p>
-                <p class="product-price">Rp ${product.price.toLocaleString('id-ID')}</p>
+                <p class="product-category">${product.category || 'Produk'}</p>
+                <p class="product-price">${formatCurrency(product.price)}</p>
                 <div class="product-actions">
-                    <button onclick="viewProductDetail(${product.id})" class="btn btn-secondary">
+                    <button onclick="viewProduct(${product.id})" class="btn btn-secondary">
                         <i class="fas fa-eye"></i> Detail
                     </button>
                     <button onclick="addToCartFromRecommendation(${product.id})" class="btn btn-primary">
@@ -342,37 +385,19 @@ function addToCartFromRecommendation(productId) {
     const product = recommendedProducts.find(p => p.id === productId);
     
     if (product) {
-        // Check if product already in cart
-        const existingItem = cart.find(item => item.id === product.id);
-        
-        if (existingItem) {
-            existingItem.quantity += 1;
-        } else {
-            cart.push({
-                ...product,
-                quantity: 1
-            });
-        }
-        
-        saveCart();
-        displayCartItems();
-        updateCartSummary();
-        updateCartCount();
-        
-        showNotification(`${product.name} ditambahkan ke keranjang!`, 'success');
-        
-        // Scroll to top of cart items
-        const cartItemsContainer = document.getElementById('cartItemsContainer');
-        if (cartItemsContainer) {
-            cartItemsContainer.scrollIntoView({ behavior: 'smooth' });
-        }
+        addToCart({
+            id: product.id,
+            name: product.name,
+            price: product.price,
+            image: product.image,
+            quantity: 1
+        });
     }
 }
 
 // View product detail (simulate)
-function viewProductDetail(productId) {
-    // In a real app, this would redirect to product detail page
-    alert(`Fitur detail produk untuk ID ${productId} akan membuka halaman detail produk.\n\nUntuk demo ini, Anda bisa menggunakan fitur "Tambah" untuk menambahkan ke keranjang.`);
+function viewProduct(productId) {
+    window.location.href = `product-detail.html?id=${productId}`;
 }
 
 // Setup event listeners
@@ -387,10 +412,28 @@ function setupEventListeners() {
     // Quantity input validation
     document.addEventListener('input', function(e) {
         if (e.target.classList.contains('quantity-input')) {
-            const value = e.target.value;
+            let value = e.target.value;
             if (value === '' || parseInt(value) < 1) {
                 e.target.value = 1;
             }
+            if (parseInt(value) > 99) {
+                e.target.value = 99;
+            }
+        }
+    });
+    
+    // Close modal when clicking outside
+    window.addEventListener('click', function(e) {
+        const modal = document.getElementById('cartModal');
+        if (e.target === modal) {
+            closeModal('cartModal');
+        }
+    });
+    
+    // Close modal with Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeModal('cartModal');
         }
     });
 }
@@ -404,7 +447,8 @@ function showConfirmModal(title, message, confirmCallback) {
     if (!modal || !modalMessage || !modalConfirmBtn) return;
     
     // Update modal content
-    modal.querySelector('h3').textContent = title;
+    const modalTitle = modal.querySelector('h3');
+    if (modalTitle) modalTitle.textContent = title;
     modalMessage.textContent = message;
     
     // Set up confirm button
@@ -417,186 +461,13 @@ function showConfirmModal(title, message, confirmCallback) {
     modal.style.display = 'block';
 }
 
-// Close modal
-function closeModal(modalId) {
-    const modal = document.getElementById(modalId);
-    if (modal) {
-        modal.style.display = 'none';
-    }
-}
-
-// Close modal when clicking outside
-window.addEventListener('click', function(e) {
-    const modal = document.getElementById('cartModal');
-    if (e.target === modal) {
-        modal.style.display = 'none';
-    }
-});
-
-// Close modal with Escape key
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
-        closeModal('cartModal');
-    }
-});
-
-// Add to cart function (for external use)
-window.addToCartFromCartPage = function(productId, quantity = 1) {
-    // This function can be called from other pages
-    updateQuantity(productId, 0, quantity);
-};
-
-// Export functions for use in other files
-window.cartUtils = {
-    getCart: () => cart,
-    getCartTotal: () => {
-        const subtotal = cart.reduce((total, item) => total + (item.price * item.quantity), 0);
-        const shipping = subtotal >= 200000 ? 0 : 15000;
-        return subtotal + shipping;
-    },
-    getCartItemCount: () => cart.reduce((total, item) => total + item.quantity, 0),
-    clearCart: () => {
-        cart = [];
-        saveCart();
-        displayCartItems();
-        updateCartSummary();
-        updateCartCount();
-    }
-};
-
-// Add CSS for modal
-const cartModalStyles = document.createElement('style');
-cartModalStyles.textContent = `
-    .modal {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.5);
-        z-index: 2000;
-        animation: fadeIn 0.3s ease;
-    }
-    
-    .modal-content {
-        background-color: white;
-        margin: 100px auto;
-        padding: 0;
-        width: 90%;
-        max-width: 500px;
-        border-radius: 12px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-        animation: slideIn 0.3s ease;
-        overflow: hidden;
-    }
-    
-    .modal-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 1.5rem;
-        background: linear-gradient(135deg, #2e7d32, #4caf50);
-        color: white;
-    }
-    
-    .modal-header h3 {
-        margin: 0;
-        font-size: 1.5rem;
-    }
-    
-    .modal-close {
-        background: none;
-        border: none;
-        font-size: 1.5rem;
-        cursor: pointer;
-        color: white;
-        padding: 5px;
-        border-radius: 4px;
-        transition: background-color 0.3s;
-    }
-    
-    .modal-close:hover {
-        background-color: rgba(255, 255, 255, 0.2);
-    }
-    
-    .modal-body {
-        padding: 2rem;
-    }
-    
-    .modal-body p {
-        font-size: 1.1rem;
-        line-height: 1.6;
-        color: #555;
-        margin-bottom: 2rem;
-    }
-    
-    .modal-actions {
-        display: flex;
-        gap: 1rem;
-        justify-content: flex-end;
-    }
-    
-    .modal-actions .btn {
-        min-width: 100px;
-    }
-    
-    @keyframes fadeIn {
-        from { opacity: 0; }
-        to { opacity: 1; }
-    }
-    
-    @keyframes slideIn {
-        from {
-            transform: translateY(-50px);
-            opacity: 0;
-        }
-        to {
-            transform: translateY(0);
-            opacity: 1;
-        }
-    }
-    
-    /* Responsive cart layout */
-    .cart-container {
-        display: grid;
-        grid-template-columns: 2fr 1fr;
-        gap: 2rem;
-        margin: 2rem 0;
-    }
-    
-    @media (max-width: 992px) {
-        .cart-container {
-            grid-template-columns: 1fr;
-        }
-        
-        .cart-summary {
-            position: static;
-        }
-    }
-    
-    /* Animation for cart updates */
-    .cart-item {
-        transition: all 0.3s ease;
-    }
-    
-    .cart-item.removing {
-        opacity: 0;
-        transform: translateX(-100px);
-    }
-    
-    .cart-item.updating {
-        background-color: #f0f7f0;
-    }
-    
-    /* Loading animation */
-    .loading-cart {
-        text-align: center;
-        padding: 2rem;
-    }
-    
-    .loading-cart .spinner {
-        margin: 0 auto 1rem;
-    }
-`;
-document.head.appendChild(cartModalStyles);
+// Export functions
+window.loadCart = loadCart;
+window.updateQuantity = updateQuantity;
+window.validateQuantity = validateQuantity;
+window.removeItem = removeItem;
+window.clearCart = clearCart;
+window.addToCartFromRecommendation = addToCartFromRecommendation;
+window.viewProduct = viewProduct;
+window.checkCartBeforeCheckout = checkCartBeforeCheckout;
+window.showConfirmModal = showConfirmModal;
