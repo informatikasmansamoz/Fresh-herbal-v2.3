@@ -23,6 +23,10 @@ function loadOrderHistory() {
     setupPagination();
 }
 
+function getOrders() {
+    return storage.get('freshHerbalOrders', []);
+}
+
 function applyFiltersToOrders(orders) {
     let filtered = [...orders];
     
@@ -60,9 +64,10 @@ function applyFiltersToOrders(orders) {
     if (currentFilters.search) {
         const searchTerm = currentFilters.search.toLowerCase();
         filtered = filtered.filter(order => 
-            order.orderId.toLowerCase().includes(searchTerm) ||
+            (order.orderId || '').toLowerCase().includes(searchTerm) ||
+            (order.customer?.name || '').toLowerCase().includes(searchTerm) ||
             order.items.some(item => 
-                item.name.toLowerCase().includes(searchTerm)
+                (item.name || '').toLowerCase().includes(searchTerm)
             )
         );
     }
@@ -84,12 +89,14 @@ function displayOrders() {
     const endIndex = startIndex + ordersPerPage;
     const currentOrders = filteredOrders.slice(startIndex, endIndex);
     
-    ordersCount.textContent = filteredOrders.length;
+    if (ordersCount) {
+        ordersCount.textContent = filteredOrders.length;
+    }
     
     if (currentOrders.length === 0) {
         ordersList.innerHTML = `
             <div class="empty-orders">
-                <i class="fas fa-box-open fa-3x"></i>
+                <i class="fas fa-box-open fa-4x"></i>
                 <h3>Tidak ada pesanan</h3>
                 <p>${filteredOrders.length === 0 ? 'Anda belum memiliki pesanan' : 'Tidak ada pesanan yang sesuai dengan filter'}</p>
                 ${filteredOrders.length === 0 ? '<a href="catalog.html" class="btn btn-primary">Mulai Belanja</a>' : ''}
@@ -114,7 +121,9 @@ function displayOrders() {
                 <div class="order-items-preview">
                     ${order.items.slice(0, 2).map(item => `
                         <div class="preview-item">
-                            <img src="${item.image || 'images/default-product.jpg'}" alt="${item.name}">
+                            <img src="${item.image || 'images/placeholder.jpg'}" 
+                                 alt="${item.name}"
+                                 onerror="this.src='images/placeholder.jpg'">
                             <span>${item.name} x${item.quantity}</span>
                         </div>
                     `).join('')}
@@ -123,7 +132,7 @@ function displayOrders() {
                 
                 <div class="order-total-amount">
                     <span>Total:</span>
-                    <strong>Rp ${calculateOrderTotal(order.items).toLocaleString('id-ID')}</strong>
+                    <strong>${formatCurrency(order.total || calculateOrderTotal(order.items))}</strong>
                 </div>
             </div>
             
@@ -166,13 +175,13 @@ function setupPagination() {
         return;
     }
     
-    let paginationHTML = '';
+    let paginationHTML = '<div class="pagination-wrapper">';
     
     // Previous button
     if (currentPage > 1) {
         paginationHTML += `
-            <button onclick="changePage(${currentPage - 1})" class="page-btn">
-                <i class="fas fa-chevron-left"></i>
+            <button onclick="changePage(${currentPage - 1})" class="page-btn prev-btn">
+                <i class="fas fa-chevron-left"></i> Sebelumnya
             </button>
         `;
     }
@@ -197,12 +206,13 @@ function setupPagination() {
     // Next button
     if (currentPage < totalPages) {
         paginationHTML += `
-            <button onclick="changePage(${currentPage + 1})" class="page-btn">
-                <i class="fas fa-chevron-right"></i>
+            <button onclick="changePage(${currentPage + 1})" class="page-btn next-btn">
+                Selanjutnya <i class="fas fa-chevron-right"></i>
             </button>
         `;
     }
     
+    paginationHTML += '</div>';
     pagination.innerHTML = paginationHTML;
 }
 
@@ -220,39 +230,55 @@ function changePage(page) {
 
 function setupEventListeners() {
     // Apply filters button
-    document.getElementById('applyFilters')?.addEventListener('click', applyFilters);
+    const applyBtn = document.getElementById('applyFilters');
+    if (applyBtn) {
+        applyBtn.addEventListener('click', applyFilters);
+    }
     
     // Reset filters button
-    document.getElementById('resetFilters')?.addEventListener('click', resetFilters);
+    const resetBtn = document.getElementById('resetFilters');
+    if (resetBtn) {
+        resetBtn.addEventListener('click', resetFilters);
+    }
     
     // Enter key in search input
-    document.getElementById('searchOrder')?.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            applyFilters();
-        }
-    });
+    const searchInput = document.getElementById('searchOrder');
+    if (searchInput) {
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                applyFilters();
+            }
+        });
+    }
     
-    // Real-time search (optional)
-    document.getElementById('searchOrder')?.addEventListener('input', function() {
-        if (this.value.length === 0 || this.value.length > 2) {
-            applyFilters();
-        }
-    });
+    // Real-time search (debounced)
+    const debouncedSearch = debounce(applyFilters, 500);
+    if (searchInput) {
+        searchInput.addEventListener('input', debouncedSearch);
+    }
 }
 
 function applyFilters() {
-    currentFilters.status = document.getElementById('statusFilter').value;
-    currentFilters.date = document.getElementById('dateFilter').value;
-    currentFilters.search = document.getElementById('searchOrder').value.trim();
+    const statusFilter = document.getElementById('statusFilter');
+    const dateFilter = document.getElementById('dateFilter');
+    const searchInput = document.getElementById('searchOrder');
+    
+    currentFilters.status = statusFilter ? statusFilter.value : '';
+    currentFilters.date = dateFilter ? dateFilter.value : 'all';
+    currentFilters.search = searchInput ? searchInput.value.trim() : '';
     
     currentPage = 1;
     loadOrderHistory();
 }
 
 function resetFilters() {
-    document.getElementById('statusFilter').value = '';
-    document.getElementById('dateFilter').value = 'all';
-    document.getElementById('searchOrder').value = '';
+    const statusFilter = document.getElementById('statusFilter');
+    const dateFilter = document.getElementById('dateFilter');
+    const searchInput = document.getElementById('searchOrder');
+    
+    if (statusFilter) statusFilter.value = '';
+    if (dateFilter) dateFilter.value = 'all';
+    if (searchInput) searchInput.value = '';
     
     currentFilters = {
         status: '',
@@ -269,14 +295,18 @@ function updateOrderStatistics(allOrders) {
     const completedOrders = allOrders.filter(order => order.status === 'completed');
     
     const totalSpent = completedOrders.reduce((total, order) => {
-        return total + calculateOrderTotal(order.items);
+        return total + (order.total || calculateOrderTotal(order.items));
     }, 0);
     
     const averageOrder = totalOrders > 0 ? Math.floor(totalSpent / totalOrders) : 0;
     
-    document.getElementById('statTotal').textContent = totalOrders;
-    document.getElementById('statSpent').textContent = `Rp ${totalSpent.toLocaleString('id-ID')}`;
-    document.getElementById('statAverage').textContent = `Rp ${averageOrder.toLocaleString('id-ID')}`;
+    const statTotal = document.getElementById('statTotal');
+    const statSpent = document.getElementById('statSpent');
+    const statAverage = document.getElementById('statAverage');
+    
+    if (statTotal) statTotal.textContent = totalOrders;
+    if (statSpent) statSpent.textContent = formatCurrency(totalSpent);
+    if (statAverage) statAverage.textContent = formatCurrency(averageOrder);
 }
 
 function viewOrderDetail(orderId) {
@@ -289,80 +319,94 @@ function viewOrderDetail(orderId) {
     }
     
     // Fill modal with order details
-    document.getElementById('modalOrderId').textContent = order.orderId;
-    document.getElementById('detailDate').textContent = formatDate(order.date);
-    document.getElementById('detailStatus').innerHTML = `
-        <span class="order-status status-${order.status}">
-            ${getStatusText(order.status)}
-        </span>
-    `;
-    document.getElementById('detailTotal').textContent = `Rp ${calculateOrderTotal(order.items).toLocaleString('id-ID')}`;
-    document.getElementById('detailPayment').textContent = getPaymentMethodText(order.payment);
+    const modalOrderId = document.getElementById('modalOrderId');
+    const detailDate = document.getElementById('detailDate');
+    const detailStatus = document.getElementById('detailStatus');
+    const detailTotal = document.getElementById('detailTotal');
+    const detailPayment = document.getElementById('detailPayment');
+    const detailCustomerName = document.getElementById('detailCustomerName');
+    const detailCustomerPhone = document.getElementById('detailCustomerPhone');
+    const detailCustomerAddress = document.getElementById('detailCustomerAddress');
+    const detailItems = document.getElementById('detailItems');
+    
+    if (modalOrderId) modalOrderId.textContent = order.orderId;
+    if (detailDate) detailDate.textContent = formatDate(order.date);
+    if (detailStatus) {
+        detailStatus.innerHTML = `
+            <span class="order-status status-${order.status}">
+                ${getStatusText(order.status)}
+            </span>
+        `;
+    }
+    if (detailTotal) detailTotal.textContent = formatCurrency(order.total || calculateOrderTotal(order.items));
+    if (detailPayment) detailPayment.textContent = getPaymentMethodText(order.payment);
     
     // Customer info
-    document.getElementById('detailCustomerName').textContent = order.customer?.name || 'Tidak tersedia';
-    document.getElementById('detailCustomerPhone').textContent = order.customer?.phone || 'Tidak tersedia';
-    document.getElementById('detailCustomerAddress').textContent = order.customer?.address || 'Tidak tersedia';
+    if (detailCustomerName) detailCustomerName.textContent = order.customer?.name || 'Tidak tersedia';
+    if (detailCustomerPhone) detailCustomerPhone.textContent = order.customer?.phone || 'Tidak tersedia';
+    if (detailCustomerAddress) detailCustomerAddress.textContent = order.customer?.address || 'Tidak tersedia';
     
     // Order items
-    const detailItems = document.getElementById('detailItems');
-    detailItems.innerHTML = order.items.map(item => `
-        <div class="detail-item-row">
-            <img src="${item.image || 'images/default-product.jpg'}" alt="${item.name}" class="detail-item-image">
-            <div class="detail-item-info">
-                <div class="detail-item-name">${item.name}</div>
-                <div class="detail-item-meta">
-                    <span>${item.quantity} x Rp ${item.price.toLocaleString('id-ID')}</span>
-                    <span class="detail-item-total">
-                        Rp ${(item.price * item.quantity).toLocaleString('id-ID')}
-                    </span>
+    if (detailItems) {
+        detailItems.innerHTML = order.items.map(item => `
+            <div class="detail-item-row">
+                <img src="${item.image || 'images/placeholder.jpg'}" 
+                     alt="${item.name}" 
+                     class="detail-item-image"
+                     onerror="this.src='images/placeholder.jpg'">
+                <div class="detail-item-info">
+                    <div class="detail-item-name">${item.name}</div>
+                    <div class="detail-item-meta">
+                        <span>${item.quantity} x ${formatCurrency(item.price)}</span>
+                        <span class="detail-item-total">
+                            ${formatCurrency(item.price * item.quantity)}
+                        </span>
+                    </div>
                 </div>
             </div>
-        </div>
-    `).join('');
+        `).join('');
+    }
     
     // Show modal
-    document.getElementById('orderDetailModal').style.display = 'block';
-}
-
-function getPaymentMethodText(method) {
-    const methods = {
-        'transfer': 'Transfer Bank',
-        'cod': 'Cash on Delivery (COD)',
-        'ewallet': 'E-Wallet'
-    };
-    
-    return methods[method] || method;
+    openModal('orderDetailModal');
 }
 
 function cancelOrder(orderId) {
-    if (confirm('Apakah Anda yakin ingin membatalkan pesanan ini?')) {
-        const orders = getOrders();
-        const orderIndex = orders.findIndex(o => o.orderId === orderId);
-        
-        if (orderIndex !== -1) {
-            orders[orderIndex].status = 'cancelled';
-            localStorage.setItem('freshHerbalOrders', JSON.stringify(orders));
+    showConfirmModal(
+        'Batalkan Pesanan',
+        'Apakah Anda yakin ingin membatalkan pesanan ini?',
+        function() {
+            const orders = getOrders();
+            const orderIndex = orders.findIndex(o => o.orderId === orderId);
             
-            showNotification('Pesanan berhasil dibatalkan!', 'success');
-            loadOrderHistory();
+            if (orderIndex !== -1) {
+                orders[orderIndex].status = 'cancelled';
+                storage.set('freshHerbalOrders', orders);
+                
+                showNotification('Pesanan berhasil dibatalkan!', 'success');
+                loadOrderHistory();
+            }
         }
-    }
+    );
 }
 
 function confirmReceipt(orderId) {
-    if (confirm('Konfirmasi bahwa Anda telah menerima pesanan ini?')) {
-        const orders = getOrders();
-        const orderIndex = orders.findIndex(o => o.orderId === orderId);
-        
-        if (orderIndex !== -1) {
-            orders[orderIndex].status = 'completed';
-            localStorage.setItem('freshHerbalOrders', JSON.stringify(orders));
+    showConfirmModal(
+        'Konfirmasi Penerimaan',
+        'Konfirmasi bahwa Anda telah menerima pesanan ini?',
+        function() {
+            const orders = getOrders();
+            const orderIndex = orders.findIndex(o => o.orderId === orderId);
             
-            showNotification('Terima kasih! Pesanan telah diselesaikan.', 'success');
-            loadOrderHistory();
+            if (orderIndex !== -1) {
+                orders[orderIndex].status = 'completed';
+                storage.set('freshHerbalOrders', orders);
+                
+                showNotification('Terima kasih! Pesanan telah diselesaikan.', 'success');
+                loadOrderHistory();
+            }
         }
-    }
+    );
 }
 
 function reorder(orderId) {
@@ -373,7 +417,10 @@ function reorder(orderId) {
         // Add all items to cart
         order.items.forEach(item => {
             addToCart({
-                ...item,
+                id: item.id,
+                name: item.name,
+                price: item.price,
+                image: item.image,
                 quantity: item.quantity
             });
         });
@@ -381,387 +428,559 @@ function reorder(orderId) {
         showNotification('Produk telah ditambahkan ke keranjang!', 'success');
         setTimeout(() => {
             window.location.href = 'cart.html';
-        }, 1000);
+        }, 1500);
     }
 }
 
 function printOrder() {
-    const printContent = document.querySelector('.order-detail-grid').outerHTML;
-    const originalContent = document.body.innerHTML;
+    const orderId = document.getElementById('modalOrderId')?.textContent;
+    if (!orderId) return;
     
-    document.body.innerHTML = `
+    const orders = getOrders();
+    const order = orders.find(o => o.orderId === orderId);
+    
+    if (!order) return;
+    
+    // Create printable content
+    const printContent = `
+        <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px;">
+            <h1 style="color: #2e7d32; text-align: center;">Fresh Herbal</h1>
+            <p style="text-align: center;">Invoice Pesanan</p>
+            
+            <hr>
+            
+            <h2>Order ID: ${order.orderId}</h2>
+            <p><strong>Tanggal:</strong> ${formatDate(order.date)}</p>
+            <p><strong>Status:</strong> ${getStatusText(order.status)}</p>
+            
+            <h3>Informasi Pelanggan:</h3>
+            <p><strong>Nama:</strong> ${order.customer?.name || '-'}</p>
+            <p><strong>Telepon:</strong> ${order.customer?.phone || '-'}</p>
+            <p><strong>Alamat:</strong> ${order.customer?.address || '-'}</p>
+            
+            <h3>Item Pesanan:</h3>
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="background-color: #f0f0f0;">
+                        <th style="padding: 10px; text-align: left;">Produk</th>
+                        <th style="padding: 10px; text-align: center;">Jumlah</th>
+                        <th style="padding: 10px; text-align: right;">Harga</th>
+                        <th style="padding: 10px; text-align: right;">Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${order.items.map(item => `
+                        <tr>
+                            <td style="padding: 10px;">${item.name}</td>
+                            <td style="padding: 10px; text-align: center;">${item.quantity}</td>
+                            <td style="padding: 10px; text-align: right;">${formatCurrency(item.price)}</td>
+                            <td style="padding: 10px; text-align: right;">${formatCurrency(item.price * item.quantity)}</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="3" style="padding: 10px; text-align: right;"><strong>Subtotal:</strong></td>
+                        <td style="padding: 10px; text-align: right;">${formatCurrency(order.subtotal || calculateOrderTotal(order.items))}</td>
+                    </tr>
+                    <tr>
+                        <td colspan="3" style="padding: 10px; text-align: right;"><strong>Ongkos Kirim:</strong></td>
+                        <td style="padding: 10px; text-align: right;">${order.shipping === 0 ? 'Gratis' : 'Rp 15.000'}</td>
+                    </tr>
+                    <tr>
+                        <td colspan="3" style="padding: 10px; text-align: right;"><strong>Total:</strong></td>
+                        <td style="padding: 10px; text-align: right;"><strong>${formatCurrency(order.total || (order.subtotal + order.shipping))}</strong></td>
+                    </tr>
+                </tfoot>
+            </table>
+            
+            <hr>
+            
+            <p style="text-align: center;">Terima kasih telah berbelanja di Fresh Herbal</p>
+            <p style="text-align: center;">www.freshherbal.com</p>
+        </div>
+    `;
+    
+    // Open print window
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
         <html>
             <head>
-                <title>Invoice ${document.getElementById('modalOrderId').textContent}</title>
+                <title>Invoice ${order.orderId}</title>
                 <style>
-                    body { font-family: Arial, sans-serif; padding: 20px; }
-                    h2 { color: #2e7d32; }
-                    .detail-item { margin: 10px 0; }
-                    .detail-label { font-weight: bold; }
-                    .detail-item-row { border-bottom: 1px solid #ddd; padding: 10px 0; }
                     @media print {
-                        .no-print { display: none; }
+                        body { font-family: Arial, sans-serif; }
                     }
                 </style>
             </head>
             <body>
-                <h2>Invoice: ${document.getElementById('modalOrderId').textContent}</h2>
                 ${printContent}
-                <button onclick="window.close()" class="no-print">Tutup</button>
+                <script>
+                    window.onload = function() { window.print(); window.close(); }
+                <\/script>
             </body>
         </html>
-    `;
-    
-    window.print();
-    document.body.innerHTML = originalContent;
-    loadOrderHistory(); // Reload to restore event listeners
+    `);
+    printWindow.document.close();
 }
 
 function trackOrder() {
-    alert('Fitur pelacakan pengiriman akan segera tersedia!');
+    showNotification('Fitur pelacakan pengiriman akan segera tersedia!', 'info');
+}
+
+// Show confirmation modal
+function showConfirmModal(title, message, confirmCallback) {
+    const modal = document.getElementById('cartModal');
+    const modalMessage = document.getElementById('modalMessage');
+    const modalConfirmBtn = document.getElementById('modalConfirmBtn');
+    
+    if (!modal || !modalMessage || !modalConfirmBtn) return;
+    
+    // Update modal content
+    const modalTitle = modal.querySelector('h3');
+    if (modalTitle) modalTitle.textContent = title;
+    modalMessage.textContent = message;
+    
+    // Set up confirm button
+    modalConfirmBtn.onclick = function() {
+        confirmCallback();
+        closeModal('cartModal');
+    };
+    
+    // Show modal
+    modal.style.display = 'block';
 }
 
 // Add CSS for order history
-const orderHistoryStyles = document.createElement('style');
-orderHistoryStyles.textContent = `
-    .filters-section {
-        background-color: #f5f5f5;
-        padding: 1.5rem 0;
-        margin-bottom: 2rem;
-    }
-    
-    .filters {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 1rem;
-        align-items: flex-end;
-    }
-    
-    .filter-group {
-        flex: 1;
-        min-width: 200px;
-    }
-    
-    .filter-group label {
-        display: block;
-        margin-bottom: 0.5rem;
-        font-weight: 500;
-        color: #666;
-    }
-    
-    .filter-group select,
-    .filter-group input {
-        width: 100%;
-        padding: 0.75rem;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        font-family: 'Poppins', sans-serif;
-    }
-    
-    .orders-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 1.5rem;
-        padding-bottom: 1rem;
-        border-bottom: 2px solid #e0e0e0;
-    }
-    
-    .orders-count {
-        color: #666;
-        font-size: 0.9rem;
-    }
-    
-    .orders-count span {
-        font-weight: 600;
-        color: #2e7d32;
-    }
-    
-    .order-card {
-        background: white;
-        border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        margin-bottom: 1rem;
-        overflow: hidden;
-    }
-    
-    .order-card-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 1rem 1.5rem;
-        background-color: #f9f9f9;
-        border-bottom: 1px solid #e0e0e0;
-    }
-    
-    .order-id small {
-        display: block;
-        color: #666;
-        font-size: 0.8rem;
-        margin-top: 0.25rem;
-    }
-    
-    .order-card-body {
-        padding: 1.5rem;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-    
-    .order-items-preview {
-        display: flex;
-        gap: 1rem;
-        align-items: center;
-    }
-    
-    .preview-item {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-    
-    .preview-item img {
-        width: 40px;
-        height: 40px;
-        object-fit: cover;
-        border-radius: 4px;
-    }
-    
-    .more-items {
-        color: #666;
-        font-size: 0.9rem;
-    }
-    
-    .order-total-amount {
-        text-align: right;
-    }
-    
-    .order-total-amount span {
-        display: block;
-        color: #666;
-        font-size: 0.9rem;
-    }
-    
-    .order-card-footer {
-        padding: 1rem 1.5rem;
-        background-color: #f9f9f9;
-        border-top: 1px solid #e0e0e0;
-        display: flex;
-        gap: 0.5rem;
-    }
-    
-    .btn-sm {
-        padding: 0.5rem 1rem;
-        font-size: 0.9rem;
-    }
-    
-    .btn-danger {
-        background-color: #dc3545;
-        color: white;
-    }
-    
-    .btn-danger:hover {
-        background-color: #c82333;
-    }
-    
-    .empty-orders {
-        text-align: center;
-        padding: 3rem;
-        background: white;
-        border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    
-    .empty-orders i {
-        color: #e0e0e0;
-        margin-bottom: 1rem;
-    }
-    
-    .empty-orders h3 {
-        margin-bottom: 0.5rem;
-        color: #666;
-    }
-    
-    .empty-orders p {
-        color: #999;
-        margin-bottom: 1.5rem;
-    }
-    
-    .pagination {
-        display: flex;
-        justify-content: center;
-        gap: 0.5rem;
-        margin-top: 2rem;
-    }
-    
-    .page-btn {
-        padding: 0.5rem 1rem;
-        border: 1px solid #ddd;
-        background: white;
-        border-radius: 4px;
-        cursor: pointer;
-        transition: all 0.3s;
-    }
-    
-    .page-btn:hover {
-        background-color: #f5f5f5;
-    }
-    
-    .page-btn.active {
-        background-color: #2e7d32;
-        color: white;
-        border-color: #2e7d32;
-    }
-    
-    .order-statistics {
-        margin-top: 2rem;
-    }
-    
-    .stat-items {
-        margin-top: 1rem;
-    }
-    
-    .stat-item {
-        display: flex;
-        justify-content: space-between;
-        padding: 0.75rem 0;
-        border-bottom: 1px solid #e0e0e0;
-    }
-    
-    .stat-item:last-child {
-        border-bottom: none;
-    }
-    
-    .stat-label {
-        color: #666;
-    }
-    
-    .stat-value {
-        font-weight: 600;
-        color: #2e7d32;
-    }
-    
-    .modal-lg {
-        max-width: 800px;
-    }
-    
-    .order-detail-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 2rem;
-        margin-bottom: 2rem;
-    }
-    
-    .order-info-section,
-    .customer-info-section {
-        background: #f9f9f9;
-        padding: 1.5rem;
-        border-radius: 8px;
-    }
-    
-    .order-items-section {
-        grid-column: 1 / -1;
-    }
-    
-    .detail-item {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 0.75rem;
-    }
-    
-    .detail-item:last-child {
-        margin-bottom: 0;
-    }
-    
-    .detail-label {
-        color: #666;
-        font-weight: 500;
-    }
-    
-    .detail-value {
-        font-weight: 600;
-        color: #333;
-    }
-    
-    .detail-item-row {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        padding: 1rem;
-        border-bottom: 1px solid #e0e0e0;
-    }
-    
-    .detail-item-row:last-child {
-        border-bottom: none;
-    }
-    
-    .detail-item-image {
-        width: 60px;
-        height: 60px;
-        object-fit: cover;
-        border-radius: 4px;
-    }
-    
-    .detail-item-info {
-        flex: 1;
-    }
-    
-    .detail-item-name {
-        font-weight: 500;
-        margin-bottom: 0.25rem;
-    }
-    
-    .detail-item-meta {
-        display: flex;
-        justify-content: space-between;
-        color: #666;
-        font-size: 0.9rem;
-    }
-    
-    .detail-item-total {
-        font-weight: 600;
-        color: #2e7d32;
-    }
-    
-    .order-actions {
-        display: flex;
-        gap: 1rem;
-        justify-content: flex-end;
-        border-top: 1px solid #e0e0e0;
-        padding-top: 1.5rem;
-    }
-    
-    @media (max-width: 768px) {
+(function addOrderHistoryStyles() {
+    const style = document.createElement('style');
+    style.textContent = `
+        .filters-section {
+            background-color: #f5f5f5;
+            padding: 1.5rem 0;
+            margin-bottom: 2rem;
+        }
+        
         .filters {
-            flex-direction: column;
-            align-items: stretch;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            align-items: flex-end;
         }
         
         .filter-group {
-            min-width: 100%;
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .filter-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #666;
+        }
+        
+        .orders-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        
+        .orders-count {
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .orders-count span {
+            font-weight: 600;
+            color: #2e7d32;
+        }
+        
+        .order-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .order-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .order-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            background-color: #f9f9f9;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .order-id strong {
+            font-size: 1.1rem;
+            color: #2e7d32;
+        }
+        
+        .order-id small {
+            display: block;
+            color: #666;
+            font-size: 0.8rem;
+            margin-top: 0.25rem;
+        }
+        
+        .order-status-badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        
+        .order-status-badge.status-pending {
+            background-color: #fff3e0;
+            color: #e65100;
+        }
+        
+        .order-status-badge.status-processing {
+            background-color: #e3f2fd;
+            color: #1565c0;
+        }
+        
+        .order-status-badge.status-shipped {
+            background-color: #e8f5e8;
+            color: #2e7d32;
+        }
+        
+        .order-status-badge.status-completed {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+        
+        .order-status-badge.status-cancelled {
+            background-color: #ffebee;
+            color: #c62828;
         }
         
         .order-card-body {
-            flex-direction: column;
-            align-items: stretch;
+            padding: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .order-items-preview {
+            display: flex;
             gap: 1rem;
-        }
-        
-        .order-total-amount {
-            text-align: left;
-        }
-        
-        .order-card-footer {
+            align-items: center;
             flex-wrap: wrap;
         }
         
+        .preview-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: #f5f5f5;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+        }
+        
+        .preview-item img {
+            width: 30px;
+            height: 30px;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+        
+        .more-items {
+            color: #666;
+            font-size: 0.9rem;
+            background: #f5f5f5;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+        }
+        
+        .order-total-amount {
+            text-align: right;
+        }
+        
+        .order-total-amount span {
+            display: block;
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .order-card-footer {
+            padding: 1rem 1.5rem;
+            background-color: #f9f9f9;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .btn-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+        }
+        
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+        
+        .empty-orders {
+            text-align: center;
+            padding: 3rem;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .empty-orders i {
+            color: #e0e0e0;
+            margin-bottom: 1rem;
+        }
+        
+        .empty-orders h3 {
+            margin-bottom: 0.5rem;
+            color: #666;
+        }
+        
+        .empty-orders p {
+            color: #999;
+            margin-bottom: 1.5rem;
+        }
+        
+        .pagination-wrapper {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        .page-btn {
+            padding: 0.5rem 1rem;
+            border: 1px solid #ddd;
+            background: white;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+        }
+        
+        .page-btn:hover {
+            background-color: #f5f5f5;
+            border-color: #4caf50;
+        }
+        
+        .page-btn.active {
+            background-color: #2e7d32;
+            color: white;
+            border-color: #2e7d32;
+        }
+        
+        .page-btn.prev-btn,
+        .page-btn.next-btn {
+            background-color: #f0f0f0;
+        }
+        
+        .order-statistics {
+            margin-top: 2rem;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .stat-card h4 {
+            color: #2e7d32;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .stat-items {
+            margin-top: 1rem;
+        }
+        
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .stat-item:last-child {
+            border-bottom: none;
+        }
+        
+        .stat-label {
+            color: #666;
+        }
+        
+        .stat-value {
+            font-weight: 600;
+            color: #2e7d32;
+        }
+        
         .order-detail-grid {
-            grid-template-columns: 1fr;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .order-info-section,
+        .customer-info-section {
+            background: #f9f9f9;
+            padding: 1.5rem;
+            border-radius: 8px;
+        }
+        
+        .order-items-section {
+            grid-column: 1 / -1;
+        }
+        
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.75rem;
+        }
+        
+        .detail-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .detail-label {
+            color: #666;
+            font-weight: 500;
+        }
+        
+        .detail-value {
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .detail-item-row {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .detail-item-row:last-child {
+            border-bottom: none;
+        }
+        
+        .detail-item-image {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+        
+        .detail-item-info {
+            flex: 1;
+        }
+        
+        .detail-item-name {
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+            color: #333;
+        }
+        
+        .detail-item-meta {
+            display: flex;
+            justify-content: space-between;
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .detail-item-total {
+            font-weight: 600;
+            color: #2e7d32;
         }
         
         .order-actions {
-            flex-direction: column;
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            border-top: 1px solid #e0e0e0;
+            padding-top: 1.5rem;
         }
-    }
-`;
-document.head.appendChild(orderHistoryStyles);
+        
+        @media (max-width: 768px) {
+            .filters {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .filter-group {
+                min-width: 100%;
+            }
+            
+            .order-card-body {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 1rem;
+            }
+            
+            .order-total-amount {
+                text-align: left;
+            }
+            
+            .order-card-footer {
+                justify-content: center;
+            }
+            
+            .order-detail-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .order-actions {
+                flex-direction: column;
+            }
+            
+            .detail-item-row {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .detail-item-meta {
+                flex-direction: column;
+                gap: 0.5rem;
+                align-items: center;
+            }
+        }
+    `;
+    document.head.appendChild(style);
+})();
+
+// Export functions
+window.applyFilters = applyFilters;
+window.resetFilters = resetFilters;
+window.changePage = changePage;
+window.viewOrderDetail = viewOrderDetail;
+window.cancelOrder = cancelOrder;
+window.confirmReceipt = confirmReceipt;
+window.reorder = reorder;
+window.printOrder = printOrder;
+window.trackOrder = trackOrder;
+window.showConfirmModal = showConfirmModal;
