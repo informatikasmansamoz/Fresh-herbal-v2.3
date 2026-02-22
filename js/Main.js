@@ -150,7 +150,7 @@ const products = [
         id: 1,
         name: 'Madu Murni',
         price: 85000,
-        image: 'images/products/madu.jpg',
+        image: 'BG 100gr .png',
         category: 'Madu',
         description: 'Madu murni dari bunga alami, tanpa bahan pengawet. Kaya akan antioksidan dan baik untuk kesehatan tubuh.',
         featured: true,
