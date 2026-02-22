@@ -15,10 +15,11 @@
         <div class="container">
             <div class="header-content">
                 <div class="logo">
-    <h1>
-        <img src="logo-main.png" alt="Logo Fresh Herbal" class="logo-img">
-        Fresh Herbal Nutritions
-    </h1>
+                    <h1>
+                        <img src="images/logo-main.png" alt="Logo Fresh Herbal" class="logo-img">
+                        Fresh Herbal
+                    </h1>
+                    <p class="tagline">Kesehatan Alami dari Alam</p>
                 </div>
                 
                 <button class="mobile-menu-btn" aria-label="Toggle menu">
@@ -29,9 +30,9 @@
                     <ul>
                         <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
                         <li><a href="about.html"><i class="fas fa-info-circle"></i> Tentang Kami</a></li>
-                        <li><a href="Catalog.html"><i class="fas fa-store"></i> Katalog</a></li>
+                        <li><a href="catalog.html"><i class="fas fa-store"></i> Katalog</a></li>
                         <li><a href="cart.html"><i class="fas fa-shopping-cart"></i> Keranjang <span class="cart-count">0</span></a></li>
-                        <li><a href="dashboard.html"><i class="fas fa-user"></i> Dashboard</a></li>
+                        <li><a href="dashboard.html"><i class="fas fa-comments"></i> Testimoni</a></li>
                     </ul>
                 </nav>
             </div>
@@ -47,7 +48,7 @@
                         <i class="fas fa-check-circle"></i>
                     </div>
                     <h1>Pesanan Berhasil!</h1>
-                    <p class="order-id">Order ID: <span id="confirmedOrderId"></span></p>
+                    <p class="order-id">Order ID: <span id="confirmedOrderId">-</span></p>
                 </div>
                 
                 <div class="confirmation-body">
@@ -57,7 +58,10 @@
                         <div class="order-summary">
                             <h3><i class="fas fa-receipt"></i> Ringkasan Pesanan</h3>
                             <div id="confirmationSummary">
-                                <!-- Order summary will be loaded here -->
+                                <div class="loading-spinner">
+                                    <div class="spinner"></div>
+                                    <p>Memuat detail pesanan...</p>
+                                </div>
                             </div>
                         </div>
                         
@@ -90,10 +94,7 @@
                     </div>
                     
                     <div class="confirmation-actions">
-                        <a href="dashboard.html" class="btn btn-primary">
-                            <i class="fas fa-tachometer-alt"></i> Lihat Dashboard
-                        </a>
-                        <a href="order-history.html" class="btn btn-secondary">
+                        <a href="order-history.html" class="btn btn-primary">
                             <i class="fas fa-history"></i> Lihat Riwayat Pesanan
                         </a>
                         <a href="catalog.html" class="btn btn-secondary">
@@ -104,8 +105,8 @@
                     <div class="support-info">
                         <h4><i class="fas fa-headset"></i> Butuh Bantuan?</h4>
                         <p>Jika Anda memiliki pertanyaan mengenai pesanan, silakan hubungi customer service kami:</p>
-                        <p><strong>Telepon:</strong> (021) 1234-5678</p>
-                        <p><strong>Email:</strong> support@freshherbal.com</p>
+                        <p><strong>Telepon:</strong> +62 856-4958-9679</p>
+                        <p><strong>Email:</strong> freshherbalblackgarlic@gmail.com</p>
                     </div>
                 </div>
             </div>
@@ -117,32 +118,32 @@
         <div class="container">
             <div class="footer-content">
                 <div class="footer-section">
-    <h3>
-        <img src="logo-main.png" alt="Logo Fresh Herbal" class="logo-img">
-        Fresh Herbal
-    </h3>
-                    <p>Menyediakan produk herbal alami untuk kesehatan keluarga Indonesia sejak 2020.</p>
+                    <h3>
+                        <img src="images/logo-main.png" alt="Logo Fresh Herbal" class="logo-img">
+                        Fresh Herbal
+                    </h3>
+                    <p>Menyediakan produk herbal alami untuk kesehatan keluarga Indonesia sejak 2010.</p>
                 </div>
                 <div class="footer-section">
                     <h3>Kontak Kami</h3>
-                    <p><i class="fas fa-map-marker-alt"></i>Ds Watukenongo, Kec Pungging,
-Kab Mojokerto, Jawa timur 68166</p>
-                    <p><i class="fas fa-phone"></i>085222031212</p>
-                    <p><i class="fas fa-envelope"></i>freshherbalblackgarlic@gmail.com</p>
+                    <p><i class="fas fa-map-marker-alt"></i> Ds Watukenongo, Kec Pungging, Kab Mojokerto, Jawa Timur 68166</p>
+                    <p><i class="fas fa-phone"></i> +62 856-4958-9679</p>
+                    <p><i class="fas fa-envelope"></i> freshherbalblackgarlic@gmail.com</p>
                 </div>
                 <div class="footer-section">
                     <h3>Jam Operasional</h3>
-                    <p>Senin - Jumat: 07:00 - 15:00</p>
-                    <p>Sabtu: 07:00 - 13:00</p>
-                    <p>Minggu: Libur</p>
+                    <p>Senin - Jumat: 08:00 - 17:00</p>
+                    <p>Sabtu: 08:00 - 15:00</p>
+                    <p>Minggu: Tutup</p>
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>&copy; 2020 Fresh Herbal. Hak Cipta Dilindungi.</p>
+                <p>&copy; 2024 Fresh Herbal. Hak Cipta Dilindungi.</p>
             </div>
         </div>
     </footer>
 
+    <script src="js/utils.js"></script>
     <script src="js/main.js"></script>
     <script src="js/order-confirmation.js"></script>
 </body>
